@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.core.config import get_config
 from app.utils import run_migrations, init_admin
+from app.routes import register_routes
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -27,6 +28,9 @@ def create_app() -> FastAPI:
     allow_methods=["*"],
     allow_headers=["*"],
   )
+
+  # Register routes
+  register_routes(app)
 
   @app.get("/")
   async def read_root():
