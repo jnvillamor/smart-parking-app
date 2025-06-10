@@ -10,3 +10,4 @@ def run_migrations():
 
   print("Running migrations...")
   command.upgrade(alembic_cfg, "head")
+  print("Migrations completed successfully.")
