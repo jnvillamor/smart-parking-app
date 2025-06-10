@@ -4,7 +4,6 @@ import LogoutButton from "@/components/LogoutButton";
 
 export default async function Home() {
   const session = await getServerSession(authOptions);
-  console.log("Session:", session);
 
   return (
     <div>
@@ -14,6 +13,8 @@ export default async function Home() {
           <p>Logged in as: {session.user?.full_name}</p>
           <p>Email: {session.user?.email}</p>
           <p>Role: {session.user?.role}</p>
+          <p>AccessToken: {session.accessToken}</p>
+          <p>RefreshToken: {session.refreshToken}</p>
           <LogoutButton />
         </div>
       ) : (
