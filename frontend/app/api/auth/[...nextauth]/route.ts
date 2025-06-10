@@ -37,6 +37,7 @@ export const authOptions: AuthOptions = {
           console.log("Invalid login response:", data);
           return null;
         }
+        console.log("User authorized:", data);
 
         return {
           id: data.user.id,
@@ -50,12 +51,14 @@ export const authOptions: AuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user, account }) {
+      console.log("JWT Callback:", { token, user, account });
       // if user is defined, it means this is the first time the JWT is being created
-      if (user && account) {
+      if (user) {
         return {
           ...token,
           accessToken: user.accessToken,
           refreshToken: user.refreshToken,
+          user: user.user,
         }
       }
 
@@ -84,6 +87,7 @@ declare module "next-auth" {
     accessToken: string;
     refreshToken: string;
     role: string;
+    user: UserProfile;
   }
 
   interface Session {
