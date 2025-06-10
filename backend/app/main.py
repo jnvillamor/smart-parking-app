@@ -1,6 +1,15 @@
 from fastapi import FastAPI
 from core.config import get_config
+from core.alembic_runner import run_migrations
+from contextlib import asynccontextmanager
 import uvicorn
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan event handler."""
+    # Run migrations on startup
+    run_migrations()
+    yield
 
 config = get_config()
 def create_app() -> FastAPI:
