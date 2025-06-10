@@ -87,3 +87,29 @@ async def login_user(user: OAuth2PasswordRequestForm = Depends(), db: Session = 
       status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
       detail="Server error while logging in user",
     )
+
+@router.get("refresh", response_model=LoginResponse, status_code=status.HTTP_200_OK)
+async def refresh_token(
+  current_user: User = Depends(get_current_user),
+): 
+  """
+  Endpoint to refresh the access token using the refresh token.
+  """
+  try:
+    access_token = create_token(subject=current_user, type="access")
+    refresh_token = create_token(subject=current_user, type="refresh")
+
+    return LoginResponse(
+      access_token=access_token.token,
+      access_token_expires=access_token.expires,
+      refresh_token=refresh_token.token,
+      refresh_token_expires=refresh_token.expires,
+      user=UserProfile.model_validate(current_user).model_dump()
+    ).model_dump()
+
+  except Exception as e:
+    print("Error refreshing token:", e, flush=True)
+    raise HTTPException(
+      status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+      detail="Server error while refreshing token",
+    )
