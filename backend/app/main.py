@@ -1,7 +1,13 @@
 from fastapi import FastAPI
+from core.config import get_config
+import uvicorn
 
+config = get_config()
 def create_app() -> FastAPI:
-  app = FastAPI()
+  app = FastAPI(
+    title=config.APP_NAME,
+    debug=config.DEBUG
+  )
 
   @app.get("/")
   async def read_root():
@@ -9,4 +15,12 @@ def create_app() -> FastAPI:
   
   return app
 
-app = create_app()
+if __name__ == "__main__":
+  uvicorn.run(
+    "main:create_app",
+    host="0.0.0.0",
+    port=8000,
+    reload=config.DEBUG,
+    log_level="debug" if config.DEBUG else "info",
+    factory=True
+  )
