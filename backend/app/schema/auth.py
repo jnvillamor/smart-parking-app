@@ -14,3 +14,8 @@ class TokenData(BaseModel):
   token_type: str
   expires: datetime
   iat: datetime = datetime.now(timezone.utc)
+
+class TokenPayload(BaseModel):
+  sub: str
+  role: str
+  exp: datetime

@@ -1,7 +1,7 @@
 from app.core.database import get_db
 from app.models import User
 from app.schema import UserCreate, UserResponse, UserProfile, LoginResponse
-from app.utils import hash_password, verify_password, create_token
+from app.utils import hash_password, verify_password, create_token, get_current_user
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import APIRouter, Depends, HTTPException, status
