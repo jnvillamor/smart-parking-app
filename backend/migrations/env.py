@@ -12,7 +12,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from app import models
-from app.core.databse import Base
+from app.core.database import Base
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 load_dotenv(os.path.join(BASE_DIR, '.env'))
