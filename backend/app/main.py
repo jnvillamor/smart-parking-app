@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from core.config import get_config
-from core.alembic_runner import run_migrations
+from utils.alembic_runner import run_migrations
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
