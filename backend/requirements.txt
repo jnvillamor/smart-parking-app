@@ -7,5 +7,6 @@ pydantic-settings
 pydantic[email]
 alembic
 python-dotenv
+python-multipart
 passlib[bcrypt]
 PyJWT

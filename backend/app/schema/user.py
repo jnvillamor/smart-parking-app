@@ -16,13 +16,20 @@ class UserCreate(UserBase):
 
 class UserResponse(UserBase):
   id: int
-  created_at: datetime
-  updated_at: datetime
   role: str = Literal["user", "admin"]
 
   @computed_field
   def full_name(self) -> str:
     return f"{self.first_name} {self.last_name}"
+  
+  model_config = {
+    "from_attributes": True,
+  }
 
-  class Config:
-    orm_mode = True
+class UserProfile(UserResponse):
+  created_at: datetime
+  updated_at: datetime
+
+  model_config = {
+    "from_attributes": True,
+  }
