@@ -1,22 +1,23 @@
 from fastapi import FastAPI
-from core.config import get_config
-from utils.alembic_runner import run_migrations
+from app.core.config import get_config
+from app.utils import run_migrations, init_admin
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
-import uvicorn
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan event handler."""
     # Run migrations on startup
     run_migrations()
+    init_admin()
     yield
 
 config = get_config()
 def create_app() -> FastAPI:
   app = FastAPI(
     title=config.APP_NAME,
-    debug=config.DEBUG
+    debug=config.DEBUG,
+    lifespan=lifespan,
   )
 
   app.add_middleware(
@@ -33,12 +34,4 @@ def create_app() -> FastAPI:
   
   return app
 
-if __name__ == "__main__":
-  uvicorn.run(
-    "main:create_app",
-    host="0.0.0.0",
-    port=8000,
-    reload=config.DEBUG,
-    log_level="debug" if config.DEBUG else "info",
-    factory=True
-  )
+app = create_app()

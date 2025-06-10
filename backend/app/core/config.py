@@ -10,6 +10,8 @@ class BaseConfig(BaseSettings):
   SECRET_KEY: str = "your-secret-key"
   ALGORITHM: str = "HS256"
   ENVIRONMENT: str = "development"  # or "production"
+  ADMIN_EMAIL: str = "admin@example.com"
+  ADMIN_PASSWORD: str = "admin_password"
 
   model_config = SettingsConfigDict(
     env_file=".env",

@@ -8,6 +8,5 @@ def run_migrations():
   alembic_cfg = Config(os.path.join(base_dir, 'alembic.ini'))
   alembic_cfg.set_main_option("script_location", os.path.join(base_dir, "migrations"))
 
+  print("Running migrations...")
   command.upgrade(alembic_cfg, "head")
-
-run_migrations()
