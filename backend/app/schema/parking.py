@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field
 from typing import List
 from .slot import SlotIDOnly, SlotDetail
 from datetime import datetime
@@ -26,6 +26,24 @@ class ParkingResponseLite(ParkingBase):
 class ParkingResponseDetail(ParkingResponseLite):
   slots: List[SlotDetail] = []
 
+  model_config = {
+    'from_attributes': True,
+  }
+
+class PaginatedParkingResponse(BaseModel):
+  items: List
+  total: int
+  page: int
+  limit: int
+
+  @computed_field
+  def has_next(self) -> bool:
+    return (self.page * self.limit) < self.total
+  
+  @computed_field
+  def has_previous(self) -> bool:
+    return self.page > 1
+  
   model_config = {
     'from_attributes': True,
   }

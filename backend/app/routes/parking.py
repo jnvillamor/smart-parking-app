@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.utils import get_current_user
 from app.models import ParkingLot, Slot, User
-from app.schema import ParkingCreate, ParkingResponseLite
+from app.schema import ParkingCreate, ParkingResponseLite, PaginatedParkingResponse
 
 router = APIRouter(
   prefix="/parking",
@@ -18,6 +18,7 @@ async def create_parking_lot(
 ):
   """
   Endpoint to create a new parking lot.
+  param parking_lot: ParkingCreate - The details of the parking lot to be created.
   """
   try:
     # Check if the user is adming
@@ -64,4 +65,43 @@ async def create_parking_lot(
     raise HTTPException(
       status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
       detail="An error occurred while creating the parking lot."
+    )
+
+@router.get("/lots", response_model=PaginatedParkingResponse, status_code=status.HTTP_200_OK)
+async def get_parking_lots(
+  db: Session = Depends(get_db),
+  current_user: User = Depends(get_current_user),
+  limit: int = 20,
+  page: int = 1,
+  detailed: bool = False,
+):
+  """
+  Endpoint to retrieve a list of parking lots. \n
+  param limit: int - The maximum number of parking lots to return. \n
+  param page: int - The page number for pagination. \n
+  param detailed: bool - Whether to return detailed information about the parking lots.
+  """
+  try:
+    # Calculate offset for pagination
+    offset = (page - 1) * limit
+
+    # Query the parking lots
+    query = db.query(ParkingLot)
+    total = query.count()
+    parking_lots = query.offset(offset).limit(limit).all()
+
+    return PaginatedParkingResponse(
+      items=[ParkingResponseLite.model_validate(lot).model_dump() for lot in parking_lots],
+      total=total,
+      page=page,
+      limit=limit
+    ).model_dump()
+  except HTTPException as e:
+    print(f"Error retrieving parking lots: {e.detail}", flush=True)
+    raise e
+  except Exception as e:
+    print(f"Error retrieving parking lots: {e}", flush=True)
+    raise HTTPException(
+      status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+      detail="An error occurred while retrieving parking lots."
     )
