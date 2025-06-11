@@ -88,7 +88,7 @@ async def login_user(user: OAuth2PasswordRequestForm = Depends(), db: Session = 
       detail="Server error while logging in user",
     )
 
-@router.get("refresh", response_model=LoginResponse, status_code=status.HTTP_200_OK)
+@router.get("/refresh", response_model=LoginResponse, status_code=status.HTTP_200_OK)
 async def refresh_token(
   current_user: User = Depends(get_current_user),
 ): 
