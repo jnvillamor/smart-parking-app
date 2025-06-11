@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.core.database import get_db
-from app.utils import get_current_user, get_admin_user
+from app.utils import get_current_user, get_admin_user, get_parking_lots_with_available_slots
 from app.models import ParkingLot, User
 from app.schema import ParkingCreate, ParkingResponseLite, ParkingResponseDetail, PaginatedParkingResponse
 
@@ -66,27 +66,17 @@ async def get_parking_lots(
   try:
     # Calculate offset for pagination
     offset = (page - 1) * limit
+    total = db.query(ParkingLot).count()
 
-    # Query the parking lots
-    query = db.query(ParkingLot)
-    total = query.count()
-    parking_lots = query.offset(offset).limit(limit).all()
-
-    if detailed:
-      # If detailed information is requested, include slots
-      return PaginatedParkingResponse(
-        items=[ParkingResponseDetail.model_validate(lot).model_dump() for lot in parking_lots],
-        total=total,
-        page=page,
-        limit=limit
-      )
+    if total > 0:
+      lots = get_parking_lots_with_available_slots(db, offset, limit, detailed)
     
     return PaginatedParkingResponse(
-      items=[ParkingResponseLite.model_validate(lot).model_dump() for lot in parking_lots],
+      parking_lots=lots,
       total=total,
       page=page,
       limit=limit
-    ).model_dump()
+    )
 
   except HTTPException as e:
     print(f"Error retrieving parking lots: {e.detail}", flush=True)
