@@ -109,6 +109,39 @@ async def get_parking_lots(
       detail="An error occurred while retrieving parking lots."
     )
 
+@router.get("/lots/{parking_lot_id}", response_model=ParkingResponseDetail, status_code=status.HTTP_200_OK)
+async def get_parking_lot(
+  parking_lot_id: int,
+  db: Session = Depends(get_db),
+  current_user: User = Depends(get_current_user),
+):
+  """
+  Endpoint to retrieve a parking lot by its ID. \n
+  param parking_lot_id: int - The ID of the parking lot to be retrieved.
+  """
+  try:
+    # Retrieve the parking lot by ID
+    parking_lot = db.query(ParkingLot).filter(ParkingLot.id == parking_lot_id).first()
+    if not parking_lot:
+      raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Parking lot not found."
+      )
+    
+    return ParkingResponseDetail.model_validate(parking_lot).model_dump()
+
+  except HTTPException as e:
+    print(f"Error retrieving parking lot: {e.detail}", flush=True)
+    raise e
+  except Exception as e:
+    print(f"Error retrieving parking lot: {e}", flush=True)
+    raise HTTPException(
+      status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+      detail="An error occurred while retrieving the parking lot."
+    )
+
+
+
 @router.delete("/lots/{parking_lot_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_parking_lot(
   parking_lot_id: int,
