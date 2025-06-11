@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.core.database import get_db
-from app.utils import get_current_user
+from app.utils import get_current_user, get_admin_user
 from app.models import ParkingLot, Slot, User
 from app.schema import ParkingCreate, ParkingResponseLite, PaginatedParkingResponse
 
@@ -14,20 +14,13 @@ router = APIRouter(
 async def create_parking_lot(
   parking_lot: ParkingCreate,
   db: Session = Depends(get_db),
-  current_user: User = Depends(get_current_user)
+  current_user: User = Depends(get_admin_user)
 ):
   """
   Endpoint to create a new parking lot.
   param parking_lot: ParkingCreate - The details of the parking lot to be created.
   """
   try:
-    # Check if the user is adming
-    if current_user.role != "admin":
-      raise HTTPException(
-        status_code=status.HTTP_403_FORBIDDEN,
-        detail="You do not have permission to create a parking lot."
-      )
-    
     # Check if the parking lot already exists
     existing_lot = db.query(ParkingLot).filter(ParkingLot.name == parking_lot.name).first()
     if existing_lot:
@@ -104,4 +97,43 @@ async def get_parking_lots(
     raise HTTPException(
       status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
       detail="An error occurred while retrieving parking lots."
+    )
+
+@router.delete("/lots/{parking_lot_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_parking_lot(
+  parking_lot_id: int,
+  db: Session = Depends(get_db),
+  current_user: User = Depends(get_admin_user),
+):
+  """
+  Endpoint to delete a parking lot by its ID. \n
+  param parking_lot_id: int - The ID of the parking lot to be deleted.
+  """
+  try:
+    # Check if the parking lot exists
+    parking_lot = db.query(ParkingLot).filter(ParkingLot.id == parking_lot_id).first()
+    if not parking_lot:
+      raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Parking lot not found."
+      )
+    
+    # Delete the parking lot
+    db.delete(parking_lot)
+    db.commit()
+
+    return {
+      "detail": "Parking lot deleted successfully."
+    }
+
+  except HTTPException as e:
+    db.rollback()
+    print(f"Error checking parking lot existence: {e.detail}", flush=True)
+    raise e
+  except Exception as e:
+    db.rollback()
+    print(f"Error deleting parking lot: {e}", flush=True)
+    raise HTTPException(
+      status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+      detail="An error occurred while deleting the parking lot."
     )
