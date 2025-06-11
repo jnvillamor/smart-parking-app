@@ -16,7 +16,7 @@ class UserCreate(UserBase):
 
 class UserResponse(UserBase):
   id: int
-  role: str = Literal["user", "admin"]
+  role: Literal["user", "admin"] = 'user' 
 
   @computed_field
   def full_name(self) -> str:
