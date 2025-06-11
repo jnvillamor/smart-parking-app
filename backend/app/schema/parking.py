@@ -18,6 +18,10 @@ class ParkingResponseLite(ParkingBase):
   updated_at: datetime
   is_active: bool
   slots: List[SlotIDOnly] = []
+  
+  @computed_field
+  def available_slots(self) -> int:
+    return len([slot for slot in self.slots if not slot.is_reserved])
 
   model_config = {
     'from_attributes': True,
