@@ -140,7 +140,55 @@ async def get_parking_lot(
       detail="An error occurred while retrieving the parking lot."
     )
 
+@router.put("/lots/{parking_lot_id}", response_model=ParkingResponseDetail, status_code=status.HTTP_200_OK)
+async def update_parking_lot(
+  parking_lot_id: int,
+  parking_lot_details: ParkingCreate,
+  db: Session = Depends(get_db),
+  current_user: User = Depends(get_admin_user)
+):
+  """
+  Endpoint to update an existing parking lot by its ID. \n
+  param parking_lot_id: int - The ID of the parking lot to be updated. \n
+  param parking_lot_details: ParkingCreate - The new details for the parking lot.
+  """
+  try:
+    # Check if the parking lot exists
+    parking_lot = db.query(ParkingLot).filter(ParkingLot.id == parking_lot_id).first()
+    if not parking_lot:
+      raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Parking lot not found."
+      )
+    
+    # Check if the name is being updated and if it already exists
+    if parking_lot_details.name != parking_lot.name:
+      existing_lot = db.query(ParkingLot).filter(ParkingLot.name == parking_lot_details.name).first()
+      if existing_lot:
+        raise HTTPException(
+          status_code=status.HTTP_400_BAD_REQUEST,
+          detail="Parking lot with this name already exists."
+        )
+    
+    # Update the parking lot details
+    for key, value in parking_lot_details.model_dump().items():
+      setattr(parking_lot, key, value)
+    
+    db.commit()
+    db.refresh(parking_lot)
 
+    return ParkingResponseDetail.model_validate(parking_lot).model_dump()
+  except HTTPException as e:
+    db.rollback()
+    print(f"Error checking parking lot existence: {e.detail}", flush=True)
+    raise e
+  except Exception as e:
+    db.rollback()
+    print(f"Error updating parking lot: {e}", flush=True)
+    raise HTTPException(
+      status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+      detail="An error occurred while updating the parking lot."
+    )
 
 @router.delete("/lots/{parking_lot_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_parking_lot(
