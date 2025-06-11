@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.utils import get_current_user, get_admin_user
 from app.models import ParkingLot, Slot, User
-from app.schema import ParkingCreate, ParkingResponseLite, PaginatedParkingResponse
+from app.schema import ParkingCreate, ParkingResponseLite, ParkingResponseDetail, PaginatedParkingResponse
 
 router = APIRouter(
   prefix="/parking",
@@ -83,12 +83,22 @@ async def get_parking_lots(
     total = query.count()
     parking_lots = query.offset(offset).limit(limit).all()
 
+    if detailed:
+      # If detailed information is requested, include slots
+      return PaginatedParkingResponse(
+        items=[ParkingResponseDetail.model_validate(lot).model_dump() for lot in parking_lots],
+        total=total,
+        page=page,
+        limit=limit
+      )
+    
     return PaginatedParkingResponse(
       items=[ParkingResponseLite.model_validate(lot).model_dump() for lot in parking_lots],
       total=total,
       page=page,
       limit=limit
     ).model_dump()
+
   except HTTPException as e:
     print(f"Error retrieving parking lots: {e.detail}", flush=True)
     raise e
