@@ -12,9 +12,7 @@ class ParkingLot(Base):
   created_at = Column(DateTime(timezone=True), default=func.now(), nullable=False)
   updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=False)
   is_active = Column(Boolean, default=True, nullable=False)
-
-  slots = relationship("Slot", back_populates="parking_lot", cascade="all, delete-orphan")
-
+  
   @validates('total_slots')
   def validate_total_slots(self, key, value):
     if value <= 1:

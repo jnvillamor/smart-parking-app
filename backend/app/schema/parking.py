@@ -1,6 +1,5 @@
 from pydantic import BaseModel, Field, computed_field
 from typing import List
-from .slot import SlotIDOnly, SlotDetail
 from datetime import datetime
 
 
@@ -17,18 +16,13 @@ class ParkingResponseLite(ParkingBase):
   created_at: datetime
   updated_at: datetime
   is_active: bool
-  slots: List[SlotIDOnly] = []
-  
-  @computed_field
-  def available_slots(self) -> int:
-    return len([slot for slot in self.slots if not slot.is_reserved])
 
   model_config = {
     'from_attributes': True,
   }
 
 class ParkingResponseDetail(ParkingResponseLite):
-  slots: List[SlotDetail] = []
+  pass
 
   model_config = {
     'from_attributes': True,

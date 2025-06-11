@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.utils import get_current_user, get_admin_user
-from app.models import ParkingLot, Slot, User
+from app.models import ParkingLot, User
 from app.schema import ParkingCreate, ParkingResponseLite, ParkingResponseDetail, PaginatedParkingResponse
 
 router = APIRouter(
@@ -32,17 +32,6 @@ async def create_parking_lot(
     # Create a new parking lot
     new_parking_lot = ParkingLot(**parking_lot.model_dump())
     db.add(new_parking_lot)
-    db.flush() # Ensure the new lot is added to the session
-
-    # Create slots for the new parking lot 
-    slots = []
-    for slot_number in range(1, parking_lot.total_slots + 1):
-      slot = Slot(
-        name=f"Slot {slot_number}",
-        parking_lot_id=new_parking_lot.id,
-      )
-      slots.append(slot)
-    db.add_all(slots)
     db.commit()
     db.refresh(new_parking_lot)
 
