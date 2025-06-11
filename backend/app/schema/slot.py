@@ -8,6 +8,7 @@ class SlotBase(BaseModel):
 
 class SlotIDOnly(BaseModel):
   id: int
+  is_reserved: bool = False
 
   model_config = {
     'from_attributes': True,
