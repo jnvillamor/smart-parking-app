@@ -1,7 +1,8 @@
 from pydantic import BaseModel
+from datetime import datetime
 
 class SlotBase(BaseModel):
-  name: int
+  name: str
   parking_lot_id: int
   is_reserved: bool = False
 
@@ -14,8 +15,8 @@ class SlotIDOnly(BaseModel):
 
 class SlotDetail(SlotBase):
   id: int
-  created_at: str
-  updated_at: str
+  created_at: datetime
+  updated_at: datetime
 
   model_config = {
     'from_attributes': True,
