@@ -35,7 +35,8 @@ export default withAuth(
   },
   {
     pages: {
-      signIn: '/auth/login'
+      signIn: '/auth/login',
+      error: '/auth/error',
     },
     callbacks: {
       // 👇 Only require auth for specific routes

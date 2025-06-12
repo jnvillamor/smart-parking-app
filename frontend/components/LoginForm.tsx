@@ -11,13 +11,14 @@ import { z } from 'zod';
 import { LoginSchema } from '@/lib/schema';
 import { toast } from 'sonner';
 import { signIn } from 'next-auth/react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 type LoginInputs = z.infer<typeof LoginSchema>;
 
 const LoginForm = () => {
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') || '/';
+  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
   const [showPassword, setShowPassword] = React.useState(false);
   const {
     register,
@@ -29,16 +30,21 @@ const LoginForm = () => {
 
   const handleSignIn = async (data: LoginInputs) => {
     try {
-      await signIn('credentials', {
+      const loginRes = await signIn('credentials', {
         email: data.username,
         password: data.password,
-        redirect: true,
-        callbackUrl: callbackUrl
+        redirect: false,
       });
+
+      if(!loginRes?.ok) {
+        throw new Error(loginRes?.error || 'Login failed');
+      }
+
+      toast.success('Successfully signed in!');
+      router.push(callbackUrl);
     } catch (error) {
       console.log('Error during sign-in:', error);
       toast.error('Failed to sign in. Please check your credentials and try again.');
-      return;
     }
   };
 
