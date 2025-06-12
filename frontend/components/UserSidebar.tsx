@@ -1,4 +1,4 @@
-import { Calendar, Car, LayoutDashboard, LogOut, MapPin, User } from 'lucide-react';
+import { Calendar, Car, LayoutDashboard, MapPin, User } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -13,6 +13,7 @@ import {
 } from './ui/sidebar';
 import React from 'react';
 import Link from 'next/link';
+import LogoutButton from './LogoutButton';
 
 const UserSidebar = () => {
   const MENUITEM = [
@@ -72,10 +73,7 @@ const UserSidebar = () => {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <Link href="/auth/login">
-                <LogOut />
-                <span>Logout</span>
-              </Link>
+              <LogoutButton />
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
