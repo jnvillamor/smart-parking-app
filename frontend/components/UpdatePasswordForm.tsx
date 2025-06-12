@@ -2,7 +2,6 @@
 
 import { UpdatePasswordSchema } from '@/lib/schema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Session } from 'next-auth';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -10,10 +9,12 @@ import { Label } from './ui/label';
 import { Input } from './ui/input';
 import { Lock } from 'lucide-react';
 import { Button } from './ui/button';
+import { updateUserPassword } from '@/lib/user';
+import { toast } from 'sonner';
 
 type FormValues = z.infer<typeof UpdatePasswordSchema>;
 
-const UpdatePasswordForm = ({ session }: { session: Session }) => {
+const UpdatePasswordForm = () => {
   const {
     register,
     handleSubmit,
@@ -23,7 +24,12 @@ const UpdatePasswordForm = ({ session }: { session: Session }) => {
   });
 
   const onSubmit = async (data: FormValues) => {
-    console.log('Form submitted:', data);
+    const res = await updateUserPassword(data);
+    if (res.success) {
+      toast.success(res.message);
+    } else { 
+      toast.error(res.message || 'Failed to update password. Please try again.');
+    }
   };
 
   return (

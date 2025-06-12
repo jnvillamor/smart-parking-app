@@ -56,7 +56,7 @@ const Profile = async () => {
                 <CardDescription>Update your password to keep your account secure</CardDescription>
               </CardHeader>
               <CardContent>
-                 <UpdatePasswordForm session={session}/>
+                 <UpdatePasswordForm />
               </CardContent>
             </Card>
           </TabsContent>
