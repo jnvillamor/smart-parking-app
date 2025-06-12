@@ -39,17 +39,40 @@ export const RegistrationSchema = z
   });
 
 export const UpdateProfileSchema = z.object({
-  firstName: z.string()
+  firstName: z
+    .string()
     .min(2, { message: 'First name must be at least 2 characters long' })
     .max(50, { message: 'First name cannot exceed 50 characters' })
     .nonempty({ message: 'First name is required' }),
 
-  lastName: z.string()
+  lastName: z
+    .string()
     .min(2, { message: 'Last name must be at least 2 characters long' })
     .max(50, { message: 'Last name cannot exceed 50 characters' })
     .nonempty({ message: 'Last name is required' }),
 
-  email: z.string()
-    .email({ message: 'Invalid email address' })
-    .nonempty({ message: 'Email is required' }),
-})
+  email: z.string().email({ message: 'Invalid email address' }).nonempty({ message: 'Email is required' })
+});
+
+export const UpdatePasswordSchema = z
+  .object({
+    currentPassword: z
+      .string()
+      .min(6, { message: 'Current password must be at least 6 characters long' })
+      .nonempty({ message: 'Current password is required' }),
+
+    newPassword: z
+      .string()
+      .min(6, { message: 'New password must be at least 6 characters long' })
+      .max(100, { message: 'New password cannot exceed 100 characters' })
+      .nonempty({ message: 'New password is required' }),
+
+    confirmNewPassword: z
+      .string()
+      .min(6, { message: 'Confirm new password must be at least 6 characters long' })
+      .max(100, { message: 'Confirm new password cannot exceed 100 characters' })
+      .nonempty({ message: 'Confirm new password is required' })
+  })
+  .refine((data) => data.newPassword === data.confirmNewPassword, {
+    message: 'New passwords do not match'
+  });

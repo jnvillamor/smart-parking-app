@@ -3,6 +3,7 @@ import ProfileForm from '@/components/ProfileForm';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import UpdatePasswordForm from '@/components/UpdatePasswordForm';
 import { getServerSession } from 'next-auth';
 import React from 'react';
 
@@ -34,14 +35,28 @@ const Profile = async () => {
             <TabsTrigger value='security'>Security</TabsTrigger>
           </TabsList>
 
+          {/* Profile Information */}
           <TabsContent value='profile'>
             <Card>
               <CardHeader>
-                <CardTitle>Profile Information</CardTitle>
+                <CardTitle className='text-2xl font-bold'>Profile Information</CardTitle>
                 <CardDescription>Update your personal information and contact details</CardDescription>
               </CardHeader>
               <CardContent>
                 <ProfileForm session={session} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Security Information */}
+          <TabsContent value='security'>
+            <Card>
+              <CardHeader className='prose'>
+                <CardTitle className='text-2xl font-bold'>Security Settings</CardTitle>
+                <CardDescription>Update your password to keep your account secure</CardDescription>
+              </CardHeader>
+              <CardContent>
+                 <UpdatePasswordForm session={session}/>
               </CardContent>
             </Card>
           </TabsContent>
