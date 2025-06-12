@@ -4,18 +4,18 @@ from .user import UserProfile
 
 class LoginResponse(BaseModel):
   access_token: str
-  access_token_expires: datetime
+  access_token_expires: int 
   refresh_token: str
-  refresh_token_expires: datetime
+  refresh_token_expires: int 
   user: UserProfile
 
 class TokenData(BaseModel):
   token: str
   token_type: str
-  expires: datetime
+  expires: int
   iat: datetime = datetime.now(timezone.utc)
 
 class TokenPayload(BaseModel):
   sub: str
   role: str
-  exp: datetime
+  exp: int

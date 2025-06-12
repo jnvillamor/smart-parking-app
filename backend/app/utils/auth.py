@@ -34,9 +34,9 @@ def create_token(
     iat = datetime.now(timezone.utc)
     if expires_delta is None:
       expires_delta = timedelta(hours=1) if type == "access" else timedelta(days=1)
-      expires = iat + expires_delta
+      expires = int((iat + expires_delta).timestamp()) 
     else:
-      expires = iat + expires_delta
+      expires = int((iat + expires_delta).timestamp()) 
     
     to_encode = TokenPayload(
       sub = str(subject.id),
