@@ -88,6 +88,24 @@ async def login_user(user: OAuth2PasswordRequestForm = Depends(), db: Session = 
       detail="Server error while logging in user",
     )
 
+@router.get("/me", response_model=UserProfile, status_code=status.HTTP_200_OK)
+async def get_current_user_profile(
+  current_user: User = Depends(get_current_user),
+): 
+  """
+  Endpoint to get the current user's profile.
+  """
+  try:
+    return UserProfile.model_validate(current_user).model_dump()
+  except HTTPException as e:
+    raise e
+  except Exception as e:
+    print("Error fetching user profile:", e, flush=True)
+    raise HTTPException(
+      status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+      detail="Server error while fetching user profile",
+    )
+
 @router.get("/refresh", response_model=LoginResponse, status_code=status.HTTP_200_OK)
 async def refresh_token(
   current_user: User = Depends(get_current_user),
