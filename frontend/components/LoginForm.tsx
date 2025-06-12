@@ -11,10 +11,13 @@ import { z } from 'zod';
 import { LoginSchema } from '@/lib/schema';
 import { toast } from 'sonner';
 import { signIn } from 'next-auth/react';
+import { useSearchParams } from 'next/navigation';
 
 type LoginInputs = z.infer<typeof LoginSchema>;
 
 const LoginForm = () => {
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') || '/';
   const [showPassword, setShowPassword] = React.useState(false);
   const {
     register,
@@ -30,7 +33,7 @@ const LoginForm = () => {
         email: data.username,
         password: data.password,
         redirect: true,
-        callbackUrl: '/'
+        callbackUrl: callbackUrl
       });
     } catch (error) {
       console.log('Error during sign-in:', error);
