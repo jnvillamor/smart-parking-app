@@ -1,43 +1,7 @@
+import { getCurrentUser, loginUser, refreshToken } from '@/lib/auth';
 import { UserProfile } from '@/lib/types';
-import { jwtDecode } from 'jwt-decode';
 import NextAuth, { AuthOptions } from 'next-auth';
-import { JWT } from 'next-auth/jwt';
 import Credentials from 'next-auth/providers/credentials';
-
-const refreshToken = async (token: JWT) => {
-  try {
-    if (!token.refreshToken) {
-      console.error('No refresh token available');
-      token.error = true;
-      return token;
-    }
-
-    const res = await fetch(`${process.env.API_BASE_URL}/auth/refresh`, {
-      headers: {
-        "Authorization": `Bearer ${token.refreshToken}`
-      }
-    });
-
-    if (!res.ok) {
-      console.error('Failed to refresh token:', res.statusText);
-      token.error = true;
-      return token;
-    }
-
-    // Update the token with new access and refresh tokens
-    const data = await res.json();
-    return {
-      ...token,
-      accessToken: data.access_token,
-      refreshToken: data.refresh_token ?? token.refreshToken
-    }
-
-  } catch (error) {
-    console.error('Error refreshing token:', error);
-    token.error = true;
-    return token;
-  }
-};
 
 export const authOptions: AuthOptions = {
   session: {
@@ -54,32 +18,15 @@ export const authOptions: AuthOptions = {
       async authorize(credentials) {
         if (!credentials || credentials === null || !credentials.email || !credentials.password) return null;
 
-        // Create a FormData object to send credentials
-        const form = new FormData();
-        form.append('username', credentials?.email || '');
-        form.append('password', credentials?.password || '');
-
-        const res = await fetch(`${process.env.API_BASE_URL}/auth/login`, {
-          method: 'POST',
-          body: form
-        });
-
-        if (!res.ok) {
-          console.log('Error in authorize:', res.statusText);
-          return null;
-        }
-
-        const data = await res.json();
-        if (!data || !data.user) {
-          console.log('Invalid login response:', data);
-          return null;
-        }
+        const data = await loginUser(credentials);
 
         return {
           id: data.user.id,
           user: data.user,
           accessToken: data.access_token,
+          accessTokenExpires: new Date(data.access_token_expires),
           refreshToken: data.refresh_token,
+          refreshTokenExpires: new Date(data.refresh_token_expires),
           role: data.user.role || 'user'
         };
       }
@@ -87,27 +34,24 @@ export const authOptions: AuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      // if the token already has an access token, check the expiration
-      if (token.accessToken) {
-        const { exp } = jwtDecode<{ exp: number }>(token.accessToken);
-
-        if (exp) {
-          token.accessTokenExpires = exp * 1000;
-        }
-      }
-
       // if user is defined, it means this is the first time the JWT is being created
       if (user) {
         return {
           ...token,
           accessToken: user.accessToken,
+          accessTokenExpires: user.accessTokenExpires,
           refreshToken: user.refreshToken,
+          refreshTokenExpires: user.refreshTokenExpires,
           user: user.user
         };
       }
 
-      // If the access token is still valid, return the token as is
-      if (token.accessTokenExpires && Date.now() < token.accessTokenExpires) {
+      // Refetch the user profile for accurate user data
+      if (token.accessTokenExpires && Date.now() < new Date(token.accessTokenExpires).getTime()) {
+        const user = await getCurrentUser(token.accessToken);
+
+        if (user) token.user = user;
+
         return token;
       }
 
@@ -118,7 +62,6 @@ export const authOptions: AuthOptions = {
     async session({ session, token }) {
       if (token) {
         session.accessToken = token.accessToken as string;
-        session.refreshToken = token.refreshToken as string;
         session.user = token.user as UserProfile;
       }
 
@@ -135,7 +78,9 @@ const handler = NextAuth(authOptions);
 declare module 'next-auth' {
   interface User {
     accessToken: string;
+    accessTokenExpires: Date;
     refreshToken: string;
+    refreshTokenExpires: Date;
     role: string;
     user: UserProfile;
   }
@@ -143,15 +88,15 @@ declare module 'next-auth' {
   interface Session {
     user: UserProfile;
     accessToken: string;
-    refreshToken: string;
   }
 }
 
 declare module 'next-auth/jwt' {
   interface JWT {
     accessToken: string;
+    accessTokenExpires: Date;
     refreshToken: string;
-    accessTokenExpires?: number;
+    refreshTokenExpires: Date;
     error?: boolean;
     user: UserProfile;
   }
