@@ -24,9 +24,9 @@ export const authOptions: AuthOptions = {
           id: data.user.id,
           user: data.user,
           accessToken: data.access_token,
-          accessTokenExpires: new Date(data.access_token_expires),
+          accessTokenExpires: data.access_token_expires,
           refreshToken: data.refresh_token,
-          refreshTokenExpires: new Date(data.refresh_token_expires),
+          refreshTokenExpires: data.refresh_token_expires,
           role: data.user.role || 'user'
         };
       }
@@ -47,7 +47,7 @@ export const authOptions: AuthOptions = {
       }
 
       // Refetch the user profile for accurate user data
-      if (token.accessTokenExpires && Date.now() < new Date(token.accessTokenExpires).getTime()) {
+      if (token.accessTokenExpires && Date.now() < (token.accessTokenExpires * 1000)) {
         const user = await getCurrentUser(token.accessToken);
 
         if (user) token.user = user;
@@ -78,9 +78,9 @@ const handler = NextAuth(authOptions);
 declare module 'next-auth' {
   interface User {
     accessToken: string;
-    accessTokenExpires: Date;
+    accessTokenExpires: number;
     refreshToken: string;
-    refreshTokenExpires: Date;
+    refreshTokenExpires: number;
     role: string;
     user: UserProfile;
   }
@@ -94,9 +94,9 @@ declare module 'next-auth' {
 declare module 'next-auth/jwt' {
   interface JWT {
     accessToken: string;
-    accessTokenExpires: Date;
+    accessTokenExpires: number;
     refreshToken: string;
-    refreshTokenExpires: Date;
+    refreshTokenExpires: number;
     error?: boolean;
     user: UserProfile;
   }

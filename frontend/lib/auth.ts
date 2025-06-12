@@ -68,10 +68,11 @@ export const refreshToken = async (token: JWT) => {
 
     // Update the token with new access and refresh tokens
     const data = await res.json();
+    console.log(data.access_token_expires)
     return {
       ...token,
       accessToken: data.access_token,
-      accessTokenExpires: new Date(data.access_token_expires),
+      accessTokenExpires: data.access_token_expires,
       refreshToken: data.refresh_token ?? token.refreshToken,
       refreshTokenExpires: data.refresh_token_expires
     };
