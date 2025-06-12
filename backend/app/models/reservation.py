@@ -17,14 +17,10 @@ class Reservation(Base):
   user = relationship("User", back_populates="reservations")
   parking = relationship("ParkingLot", back_populates="reservations")
 
-  @property
-  def duration(self):
-    """Calculate the duration of the reservation in minutes."""
-    if self.start_time and self.end_time:
-      return (self.end_time - self.start_time).total_seconds() / 60
-    return None
-
   CheckConstraint(
     "start_time < end_time",
     name="check_start_time_before_end_time"
   )
+
+  def __repr__(self):
+    return f"<Reservation(id={self.id}, user_id={self.user_id}, parking_id={self.parking_id}, start_time={self.start_time}, end_time={self.end_time}, is_cancelled={self.is_cancelled})>"

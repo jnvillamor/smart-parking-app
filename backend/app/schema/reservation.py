@@ -4,8 +4,8 @@ from datetime import datetime, timezone
 class ReservationBase(BaseModel):
   parking_id: int
   user_id: int
-  start_time: str
-  end_time: str
+  start_time: datetime
+  end_time: datetime
 
 class ReservationCreate(ReservationBase):
   pass
@@ -15,10 +15,15 @@ class ReservationResponse(ReservationBase):
   is_cancelled: bool
   created_at: datetime
   updated_at: datetime
-  duration: int
+
+  @computed_field
+  def duration(self) -> int:
+    """Calculate the duration of the reservation in minutes."""
+    return int((self.end_time - self.start_time).total_seconds() / 60)
 
   @computed_field
   def status(self) -> str:
+    """Determine the status of the reservation."""
     if self.is_cancelled:
       return "Cancelled"
 
@@ -28,6 +33,10 @@ class ReservationResponse(ReservationBase):
       return "Upcoming"
     else:
       return "Completed"
+    
+  model_config = {
+    'from_attributes': True,
+  }
 
 class ReservationUser(BaseModel):
   id: int

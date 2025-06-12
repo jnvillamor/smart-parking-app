@@ -21,9 +21,9 @@ def get_parking_lots_with_available_slots(db: Session, offset: int, limit: int, 
 
   for lot in parking_lots:
     active_reservations = [ 
-      res for res in lot.reservations if res.start_time <= now <= res.end_time
+      res for res in lot.reservations if res.start_time <= now <= res.end_time or res.start_time > now
     ]
-
+  
     available_slots = lot.total_slots - len(active_reservations)
 
     setattr(lot, 'available_slots', available_slots)
@@ -38,3 +38,15 @@ def get_parking_lots_with_available_slots(db: Session, offset: int, limit: int, 
       results.append(base_response)
     
   return results
+
+def is_parking_full(now: datetime, parking_lot: ParkingLot) -> bool:
+  """
+  Check if the parking lot is full based on current time and reservations.
+  param now: Current datetime in UTC.
+  param parking_lot: ParkingLot object to check.
+  """
+  active_reservations = [
+    res for res in parking_lot.reservations if res.start_time <= now <= res.end_time
+  ]
+  
+  return len(active_reservations) >= parking_lot.total_slots
