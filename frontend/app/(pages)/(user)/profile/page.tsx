@@ -1,7 +1,7 @@
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import ProfileForm from '@/components/ProfileForm';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import UpdatePasswordForm from '@/components/UpdatePasswordForm';
 import { getServerSession } from 'next-auth';
@@ -18,7 +18,7 @@ const Profile = async () => {
   }
 
   return (
-    <SidebarInset>
+    <>
       {/* Header */}
       <header className='flex h-16 shrink-0 items-center gap-2 border-b px-4'>
         <SidebarTrigger className='-ml-1' />
@@ -56,13 +56,13 @@ const Profile = async () => {
                 <CardDescription>Update your password to keep your account secure</CardDescription>
               </CardHeader>
               <CardContent>
-                 <UpdatePasswordForm />
+                <UpdatePasswordForm />
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
       </div>
-    </SidebarInset>
+    </>
   );
 };
 

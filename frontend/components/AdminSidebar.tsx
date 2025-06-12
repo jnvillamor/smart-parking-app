@@ -1,45 +1,58 @@
-import { Calendar, Car, LayoutDashboard, MapPin, Settings, Sidebar, Users } from 'lucide-react';
-import React from 'react';
-import { SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from './ui/sidebar';
-import Link from 'next/link';
-import LogoutButton from './LogoutButton';
+"use client"
 
-const AdminSidebar = () => {
-  const menuItems = [
-    {
-      title: 'Dashboard',
-      url: '/admin/dashboard',
-      icon: LayoutDashboard
-    },
-    {
-      title: 'Locations',
-      url: '/admin/locations',
-      icon: MapPin
-    },
-    {
-      title: 'Reservations',
-      url: '/admin/reservations',
-      icon: Calendar
-    },
-    {
-      title: 'Users',
-      url: '/admin/users',
-      icon: Users
-    },
-    {
-      title: 'Settings',
-      url: '/admin/settings',
-      icon: Settings
-    }
-  ];
+import { Car, LayoutDashboard, MapPin, Calendar, Users, Settings } from "lucide-react"
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar"
+import Link from "next/link"
+import LogoutButton from "./LogoutButton"
+
+const menuItems = [
+  {
+    title: "Dashboard",
+    url: "/admin/dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    title: "Locations",
+    url: "/admin/locations",
+    icon: MapPin,
+  },
+  {
+    title: "Reservations",
+    url: "/admin/reservations",
+    icon: Calendar,
+  },
+  {
+    title: "Users",
+    url: "/admin/users",
+    icon: Users,
+  },
+  {
+    title: "Settings",
+    url: "/admin/settings",
+    icon: Settings,
+  },
+]
+
+export default function AdminSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <div className='flex items-center space-x-2 px-2 py-2'>
-          <Car className='h-8 w-8 text-blue-600' />
+        <div className="flex items-center space-x-2 px-2 py-2">
+          <Car className="h-8 w-8 text-blue-600" />
           <div>
-            <h2 className='text-lg font-semibold'>SmartPark</h2>
-            <p className='text-sm text-muted-foreground'>Admin Panel</p>
+            <h2 className="text-lg font-semibold">SmartPark</h2>
+            <p className="text-sm text-muted-foreground">Admin Panel</p>
           </div>
         </div>
       </SidebarHeader>
@@ -72,7 +85,5 @@ const AdminSidebar = () => {
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
-  );
-};
-
-export default AdminSidebar;
+  )
+}

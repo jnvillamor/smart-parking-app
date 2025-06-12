@@ -1,14 +1,14 @@
-import UserSidebar from "@/components/UserSidebar";
+import AdminSidebar from '@/components/AdminSidebar';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import React, { ReactNode } from 'react';
 
-export default function Layout({
-  children
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+const layout = ({ children }: { children: ReactNode }) => {
   return (
-    <>
-      <UserSidebar />
-      {children}
-    </>
+    <SidebarProvider>
+      <AdminSidebar />
+      <SidebarInset>{children}</SidebarInset>
+    </SidebarProvider>
   );
-}
+};
+
+export default layout;

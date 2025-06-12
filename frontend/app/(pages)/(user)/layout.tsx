@@ -1,14 +1,14 @@
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import UserSidebar from '@/components/UserSidebar';
+import React, { ReactNode } from 'react';
 
-export default function Layout({
-  children
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+const layout = ({ children }: { children: ReactNode }) => {
   return (
-    <>
+    <SidebarProvider>
       <UserSidebar />
-      {children}
-    </>
+      <SidebarInset>{children}</SidebarInset>
+    </SidebarProvider>
   );
-}
+};
+
+export default layout;
