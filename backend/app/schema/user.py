@@ -14,6 +14,14 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
   password: str
 
+class UpdatePassword(BaseModel):
+  old_password: str
+  new_password: str
+
+  model_config = {
+    "from_attributes": True,
+  }
+
 class UserResponse(UserBase):
   id: int
   role: Literal["user", "admin"] = 'user' 
