@@ -1,10 +1,18 @@
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import RegistrationForm from '@/components/RegistrationForm';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Car } from 'lucide-react';
+import { getServerSession } from 'next-auth';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import React from 'react';
 
-const RegisterPage = () => {
+const RegisterPage = async () => {
+  const session = await getServerSession(authOptions);
+  if (session) {
+    redirect('/dashboard');
+  }
+
   return (
     <div className='min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4'>
       <Card className='w-full max-w-md'>
