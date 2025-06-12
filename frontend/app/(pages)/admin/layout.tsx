@@ -1,4 +1,4 @@
-import UserSidebar from '@/components/UserSidebar';
+import UserSidebar from "@/components/UserSidebar";
 
 export default function Layout({
   children
