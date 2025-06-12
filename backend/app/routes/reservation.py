@@ -34,7 +34,7 @@ async def create_reservation(
     ).scalar_one_or_none()
 
     # Check if the request is valid
-    is_valid_request(now, reservation, parking_lot, current_user)
+    is_valid_request(now, reservation, parking_lot, current_user, db)
 
     # Create the reservation
     new_reservation = Reservation(**reservation.model_dump())

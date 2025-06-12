@@ -1,12 +1,12 @@
 from sqlalchemy.orm import Session
-from datetime import datetime, timezone
+from datetime import datetime
 from fastapi import HTTPException, status
 
-from app.models import User, ParkingLot
+from app.models import User, ParkingLot, Reservation
 from app.schema import ReservationCreate
 from .parking import is_parking_full
 
-def is_valid_request(now: datetime, reservation: ReservationCreate, parking_lot: ParkingLot, current_user: User) -> bool:
+def is_valid_request(now: datetime, reservation: ReservationCreate, parking_lot: ParkingLot, current_user: User, db: Session) -> bool:
   """
   Validate the reservation request against the parking lot's current state.
   param now: Current datetime in UTC.
@@ -19,6 +19,18 @@ def is_valid_request(now: datetime, reservation: ReservationCreate, parking_lot:
     raise HTTPException(
       status_code=status.HTTP_403_FORBIDDEN,
       detail="Admins cannot create reservations."
+    )
+  
+  # Check if there is no conflicting reservation
+  if db.query(Reservation).filter(
+    Reservation.user_id == reservation.user_id,
+    Reservation.parking_id == reservation.parking_id,
+    Reservation.start_time < reservation.end_time,
+    Reservation.end_time > reservation.start_time
+  ).first() is not None:
+    raise HTTPException(
+      status_code=status.HTTP_400_BAD_REQUEST,
+      detail="You already have a reservation during this time."
     )
 
   # Check if the parking lot exists
