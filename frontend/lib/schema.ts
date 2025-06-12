@@ -37,3 +37,19 @@ export const RegistrationSchema = z
     message: 'Passwords do not match',
     path: ['confirmPassword']
   });
+
+export const UpdateProfileSchema = z.object({
+  firstName: z.string()
+    .min(2, { message: 'First name must be at least 2 characters long' })
+    .max(50, { message: 'First name cannot exceed 50 characters' })
+    .nonempty({ message: 'First name is required' }),
+
+  lastName: z.string()
+    .min(2, { message: 'Last name must be at least 2 characters long' })
+    .max(50, { message: 'Last name cannot exceed 50 characters' })
+    .nonempty({ message: 'Last name is required' }),
+
+  email: z.string()
+    .email({ message: 'Invalid email address' })
+    .nonempty({ message: 'Email is required' }),
+})
