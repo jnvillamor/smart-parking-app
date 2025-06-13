@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.utils import get_current_user, get_admin_user, get_parking_lots_with_available_slots
-from app.models import ParkingLot, User
-from app.schema import ParkingCreate, ParkingResponseLite, ParkingResponseDetail, PaginatedParkingResponse
+from app.models import ParkingLot, User, Reservation
+from app.schema import ParkingCreate, ParkingResponseLite, ParkingResponseDetail, PaginatedParkingResponse, ParkingSummaryResponse
 
 router = APIRouter(
   prefix="/parking",
@@ -207,4 +208,40 @@ async def delete_parking_lot(
     raise HTTPException(
       status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
       detail="An error occurred while deleting the parking lot."
+    )
+
+@router.get("/summary", response_model=ParkingSummaryResponse, status_code=status.HTTP_200_OK)
+async def get_parking_summary(
+  db: Session = Depends(get_db),
+  current_user: User = Depends(get_current_user)
+):
+  """
+  Endpoint to retrieve a summary of parking lots.
+  """
+  try:
+    query = db.query(ParkingLot)
+    now = func.now()
+
+    total_parking_lots = query.count()
+    total_active_parking_lots = query.filter(ParkingLot.is_active == True).count()
+    total_available_slots = db.query(func.sum(ParkingLot.total_slots)).scalar() or 0
+    total_reserved_slots = db.query(Reservation).filter(
+      Reservation.end_time > now,
+    ).count()
+
+    return ParkingSummaryResponse(
+      total_parking_lots=total_parking_lots,
+      total_active_parking_lots=total_active_parking_lots,
+      total_available_slots=total_available_slots,
+      total_reserved_slots=total_reserved_slots
+    ).model_dump()
+
+  except HTTPException as e:
+    print(f"Error retrieving parking summary: {e.detail}", flush=True)
+    raise e
+  except Exception as e:
+    print(f"Error retrieving parking summary: {e}", flush=True)
+    raise HTTPException(
+      status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+      detail="An error occurred while retrieving the parking summary."
     )

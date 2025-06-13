@@ -48,3 +48,13 @@ class PaginatedParkingResponse(BaseModel):
   model_config = {
     'from_attributes': True,
   }
+
+class ParkingSummaryResponse(BaseModel):
+  total_parking_lots: int
+  total_active_parking_lots: int
+  total_available_slots: int
+  total_reserved_slots: int
+
+  model_config = {
+    'from_attributes': True,
+  }
