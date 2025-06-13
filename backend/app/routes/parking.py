@@ -246,7 +246,7 @@ async def get_parking_summary(
       detail="An error occurred while retrieving the parking summary."
     )
 
-@router.patch("/lots/{parrking_lot_id}/toggle-status", status_code=status.HTTP_200_OK)
+@router.patch("/lots/{parking_lot_id}/toggle-status", status_code=status.HTTP_200_OK)
 async def toggle_parking_lot_status(
   parking_lot_id: int,
   db: Session = Depends(get_db),
