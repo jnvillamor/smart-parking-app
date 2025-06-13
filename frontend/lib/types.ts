@@ -16,3 +16,10 @@ export interface LoginResponse {
   refresh_token_expires: string;
   user: UserProfile;
 }
+
+export interface ParkingSummary {
+  total_parking_lots: number;
+  total_active_parking_lots: number;
+  total_available_slots: number;
+  total_reserved_slots: number;
+}

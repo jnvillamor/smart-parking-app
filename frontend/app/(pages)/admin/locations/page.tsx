@@ -1,4 +1,5 @@
 import AddLocationDialog from '@/components/AddLocationDialog'
+import SummaryCards from '@/components/SummaryCards'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import React from 'react'
 
@@ -12,6 +13,10 @@ const LocationPage = () => {
           <AddLocationDialog />
         </div>
       </header>
+      <div className='flex-1 space-y-4 p-4 md:p-8 pt-6'>
+        {/* Summary Cards */}
+        <SummaryCards />
+      </div>
     </>
   )
 }
