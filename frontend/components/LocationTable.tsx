@@ -2,8 +2,8 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { getParkingLocations } from '@/lib/parking';
-import { Badge } from './ui/badge';
 import LocationTableActionButton from './LocationTableActionButton';
+import LocationTableStatusButton from './LocationTableStatusButton';
 
 const LocationTable = async () => {
   const locationsData = await getParkingLocations();
@@ -33,16 +33,16 @@ const LocationTable = async () => {
           <TableBody>
             {locationsData.data?.parking_lots.map((loc) => (
               <TableRow key={loc.id}>
-                <TableCell className="p-4 align-middle font-medium">{loc.name}</TableCell>
-                <TableCell className="p-4 align-middle">{loc.location}</TableCell>
-                <TableCell className="p-4 align-middle">
+                <TableCell className='p-4 align-middle font-medium'>{loc.name}</TableCell>
+                <TableCell className='p-4 align-middle'>{loc.location}</TableCell>
+                <TableCell className='p-4 align-middle'>
                   <span className='text-green-500'>{loc.available_slots}</span>/<span>{loc.total_slots}</span>
                 </TableCell>
-                <TableCell className="p-4 align-middle">${loc.rate.toFixed(2)}</TableCell>
-                <TableCell className="p-4 align-middle">
-                  <Badge variant={loc.is_active ? 'default' : 'secondary'}>{loc.is_active ? 'Active' : 'Inactive'}</Badge>
+                <TableCell className='p-4 align-middle'>${loc.rate.toFixed(2)}</TableCell>
+                <TableCell className='p-4 align-middle'>
+                  <LocationTableStatusButton loc={loc} />
                 </TableCell>
-                <TableCell className="p-4 align-middle">
+                <TableCell className='p-4 align-middle'>
                   <LocationTableActionButton location_id={loc.id} />
                 </TableCell>
               </TableRow>

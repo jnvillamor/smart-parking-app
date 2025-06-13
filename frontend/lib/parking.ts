@@ -167,3 +167,45 @@ export const getParkingSummary = async () => {
     };
   }
 };
+
+export const toggleParkingLocationStatus = async (id: number) => {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return {
+      success: false,
+      message: 'You must be logged in to toggle parking location status.'
+    };
+  }
+
+  try {
+    const res = await fetch(`${process.env.API_BASE_URL}/parking/lots/${id}/toggle-status`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${session.accessToken}`
+      }
+    })
+    console.log(res)
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      return {
+        success: false,
+        message: errorData.detail || 'Failed to update parking location status.'
+      };
+    }
+
+    revalidatePath('/admin/locations');
+    return {
+      success: true,
+      message: 'Parking location status updated successfully.'
+    };
+    
+  } catch (error) {
+    console.error('Error updating parking location status:', error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'An error occurred while toggling parking location status.'
+    }
+    
+  }
+}
