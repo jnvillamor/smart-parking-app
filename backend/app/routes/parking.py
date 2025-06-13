@@ -35,6 +35,7 @@ async def create_parking_lot(
     db.commit()
     db.refresh(new_parking_lot)
 
+    new_parking_lot.available_slots = new_parking_lot.total_slots  # Initialize available slots
     return ParkingResponseLite.model_validate(new_parking_lot).model_dump()
      
   except HTTPException as e:

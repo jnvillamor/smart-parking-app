@@ -8,6 +8,7 @@ class ParkingBase(BaseModel):
   name: str
   location: str
   total_slots: int = Field(..., ge=2, description="Total number of slots must be greater than 1")
+  rate: int = Field(..., ge=1, description="Rate per hour")
 
 class ParkingCreate(ParkingBase):
   pass
