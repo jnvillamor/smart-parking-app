@@ -1,5 +1,5 @@
 from app.core.database import Base
-from sqlalchemy import Column, Integer, String, DateTime, CheckConstraint, Boolean, func
+from sqlalchemy import Column, Integer, String, DateTime, CheckConstraint, Boolean, Float, func
 from sqlalchemy.orm import validates, relationship
 
 class ParkingLot(Base):
@@ -11,7 +11,7 @@ class ParkingLot(Base):
   total_slots = Column(Integer, CheckConstraint("total_slots > 1"), nullable=False)
   created_at = Column(DateTime(timezone=True), default=func.now(), nullable=False)
   updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=False)
-  rate=Column(Integer, nullable=False, default=0)
+  rate=Column(Float, nullable=False, default=0)
   is_active = Column(Boolean, default=True, nullable=False)
 
   reservations = relationship("Reservation", back_populates="parking", cascade="all, delete-orphan")
