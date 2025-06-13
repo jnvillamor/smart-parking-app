@@ -87,6 +87,47 @@ export const getParkingLocations = async () => {
   }
 }
 
+export const updateParkingLocation = async (id: number, data: z.infer<typeof AddLocationSchema>) => {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return {
+      success: false,
+      message: 'You must be logged in to update a parking location.'
+    };
+  }
+
+  try {
+    const res = await fetch(`${process.env.API_BASE_URL}/parking/lots/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.accessToken}`
+      }
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      return {
+        success: false,
+        message: errorData.detail || 'Failed to update parking location.'
+      };
+    }
+
+    revalidatePath('/admin/locations');
+    return {
+      success: true,
+      message: 'Parking location updated successfully.'
+    };
+  } catch (error) {
+    console.error('Error updating parking location:', error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'An error occurred while updating the parking location.'
+    };
+  }
+}
+
 
 export const deleteParkingLocation = async (id: number) => {
   const seession = await getServerSession(authOptions);

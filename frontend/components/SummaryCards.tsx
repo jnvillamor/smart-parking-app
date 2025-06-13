@@ -34,7 +34,7 @@ const SummaryCards = async () => {
   ];
 
   return (
-    <div className='grid gap-4 md:grid-cols-4'>
+    <div className='grid grid-cols-2 gap-4 md:grid-cols-4'>
       {summary.map((item, index) => (
         <Card key={index}>
           <CardHeader className='flex items-center justify-between space-y-0 pb-2'>

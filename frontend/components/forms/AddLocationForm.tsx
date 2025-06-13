@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
-import { createParkingLocation } from '@/lib/parking';
+import { createParkingLocation, updateParkingLocation } from '@/lib/parking';
 import { toast } from 'sonner';
 import { ParkingLocation } from '@/lib/types';
 
@@ -33,7 +33,14 @@ const AddLocationForm = ({ setIsOpen, setEditingLocation, defaultValues }: AddLo
   });
 
   const onSubmit = async (data: AddLocationFormValues) => {
-    const res = defaultValues ? await createParkingLocation(data) : await createParkingLocation(data);
+    let res;
+    if( defaultValues && defaultValues.id ) {
+      res = await updateParkingLocation(defaultValues.id, data);
+    }
+    else {
+      res = await createParkingLocation(data);
+    }
+    
     if (res.success) {
       setIsOpen(false);
       toast.success(res.message);
@@ -93,7 +100,7 @@ const AddLocationForm = ({ setIsOpen, setEditingLocation, defaultValues }: AddLo
             Cancel
           </Button>
           <Button type='submit' disabled={isSubmitting}>
-            {isSubmitting ? 'Adding...' : 'Add Location'}
+            {defaultValues ? (isSubmitting ? 'Updating...' : 'Update Location') : (isSubmitting ? 'Creating...' : 'Add Location')}
           </Button>
         </div>
       </div>
