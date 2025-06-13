@@ -76,3 +76,21 @@ export const UpdatePasswordSchema = z
   .refine((data) => data.newPassword === data.confirmNewPassword, {
     message: 'New passwords do not match'
   });
+
+export const AddLocationSchema = z.object({
+  name: z.string()
+    .min(2, { message: 'Location name must be at least 2 characters long' })
+    .max(100, { message: 'Location name cannot exceed 100 characters' })
+    .nonempty({ message: 'Location name is required' }),
+  
+  location: z.string()
+    .min(2, { message: 'Location must be at least 2 characters long' })
+    .max(200, { message: 'Location cannot exceed 200 characters' })
+    .nonempty({ message: 'Location is required' }),
+  
+  total_slots: z.number()
+    .min(2, { message: 'Total slots must be at least 2' })
+    .max(1000, { message: 'Total slots cannot exceed 1000' })
+    .int({ message: 'Total slots must be an integer' })
+    .nonnegative({ message: 'Total slots cannot be negative' }),
+})
