@@ -5,7 +5,7 @@ import { AddLocationSchema } from './schema';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { revalidatePath } from 'next/cache';
-import { ParkingSummary } from './types';
+import { ParginatedParkingLocations, ParkingSummary } from './types';
 
 export const createParkingLocation = async (data: z.infer<typeof AddLocationSchema>) => {
   const session = await getServerSession(authOptions);
@@ -46,6 +46,87 @@ export const createParkingLocation = async (data: z.infer<typeof AddLocationSche
     };
   }
 };
+
+export const getParkingLocations = async () => {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return {
+      success: false,
+      message: 'You must be logged in to view parking locations.'
+    };
+  }
+
+  try {
+    const res = await fetch(`${process.env.API_BASE_URL}/parking/lots`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${session.accessToken}`
+      }
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      return {
+        success: false,
+        message: errorData.detail || 'Failed to fetch parking locations.'
+      };
+    }
+
+    const data = await res.json() as ParginatedParkingLocations;
+    return {
+      success: true,
+      data: data,
+      message: 'Parking locations fetched successfully.'
+    };
+  } catch (error) {
+    console.error('Error fetching parking locations:', error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'An error occurred while fetching parking locations.'
+    };
+  }
+}
+
+
+export const deleteParkingLocation = async (id: number) => {
+  const seession = await getServerSession(authOptions);
+
+  if (!seession) {
+    return {
+      success: false,
+      message: 'You must be logged in to delete a parking location.'
+    };
+  }
+
+  try {
+    const res = await fetch(`${process.env.API_BASE_URL}/parking/lots/${id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${seession.accessToken}`
+      }
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      return {
+        success: false,
+        message: errorData.detail || 'Failed to delete parking location.'
+      };
+    }
+
+    revalidatePath('/admin/locations');
+    return {
+      success: true,
+      message: 'Parking location deleted successfully.'
+    };
+  } catch (error) {
+    console.error('Error deleting parking location:', error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'An error occurred while deleting the parking location.'
+    };
+  }
+}
 
 export const getParkingSummary = async () => {
   const session = await getServerSession(authOptions);
