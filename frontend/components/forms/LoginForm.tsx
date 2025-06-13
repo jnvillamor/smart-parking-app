@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Label } from './ui/label';
-import { Input } from './ui/input';
-import { Button } from './ui/button';
+import { Label } from '../ui/label';
+import { Input } from '../ui/input';
+import { Button } from '../ui/button';
 import { Eye, EyeOff } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';

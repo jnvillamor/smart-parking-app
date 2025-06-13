@@ -1,5 +1,5 @@
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import RegistrationForm from '@/components/RegistrationForm';
+import RegistrationForm from '@/components/forms/RegistrationForm';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Car } from 'lucide-react';
 import { getServerSession } from 'next-auth';

@@ -5,10 +5,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Label } from './ui/label';
-import { Input } from './ui/input';
+import { Label } from '../ui/label';
+import { Input } from '../ui/input';
 import { Lock } from 'lucide-react';
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
 import { updateUserPassword } from '@/lib/user';
 import { toast } from 'sonner';
 
