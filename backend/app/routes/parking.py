@@ -245,3 +245,45 @@ async def get_parking_summary(
       status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
       detail="An error occurred while retrieving the parking summary."
     )
+
+@router.patch("/lots/{parrking_lot_id}/toggle-status", status_code=status.HTTP_200_OK)
+async def toggle_parking_lot_status(
+  parking_lot_id: int,
+  db: Session = Depends(get_db),
+  current_user: User = Depends(get_admin_user),
+):
+  """
+  Endpoint to toggle the status of a parking lot (active/inactive). \n
+  param parking_lot_id: int - The ID of the parking lot whose status is to be toggled.
+  """
+  try:
+    # Retrieve the parking lot by ID
+    parking_lot = db.query(ParkingLot).filter(ParkingLot.id == parking_lot_id).first()
+    if not parking_lot:
+      raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Parking lot not found."
+      )
+    
+    # Toggle the status
+    parking_lot.is_active = not parking_lot.is_active
+    db.commit()
+    db.refresh(parking_lot)
+
+    return {
+      "detail": "Parking lot status toggled successfully.",
+      "id": parking_lot.id,
+      "is_active": parking_lot.is_active
+    } 
+
+  except HTTPException as e:
+    db.rollback()
+    print(f"Error toggling parking lot status: {e.detail}", flush=True)
+    raise e
+  except Exception as e:
+    db.rollback()
+    print(f"Error toggling parking lot status: {e}", flush=True)
+    raise HTTPException(
+      status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+      detail="An error occurred while toggling the parking lot status."
+    )
