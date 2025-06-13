@@ -6,6 +6,8 @@ import { z } from 'zod';
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
+import { createParkingLocation } from '@/lib/parking';
+import { toast } from 'sonner';
 
 type AddLocationFormValues = z.infer<typeof AddLocationSchema>;
 
@@ -19,7 +21,13 @@ const AddLocationForm = ({ setIsOpen }: { setIsOpen: React.Dispatch<React.SetSta
   });
 
   const onSubmit = async (data: AddLocationFormValues) => {
-    console.log('Form submitted:', data);
+    const res = await createParkingLocation(data);
+    if (res.success) {
+      setIsOpen(false);
+      toast.success(res.message);
+    } else {
+      toast.error(res.message);
+    }
   };
 
   return (
@@ -43,8 +51,16 @@ const AddLocationForm = ({ setIsOpen }: { setIsOpen: React.Dispatch<React.SetSta
       <div className='space-y-2'>
         <Label htmlFor='total_slots'>Total Slots</Label>
         <div>
-          <Input id='total_slots' type='number' min={2} {...register('total_slots')} />
+          <Input id='total_slots' type='number' min={2} {...register('total_slots', { valueAsNumber: true })} />
           {errors.total_slots && <p className='text-red-500 text-sm mt-1'>{errors.total_slots.message}</p>}
+        </div>
+      </div>
+
+      <div className='space-y-2'>
+        <Label htmlFor='rate'>Rate ($/hr)</Label>
+        <div>
+          <Input id='rate' type='number' step="any" min={2} {...register('rate', { valueAsNumber: true })} />
+          {errors.rate && <p className='text-red-500 text-sm mt-1'>{errors.rate.message}</p>}
         </div>
       </div>
 

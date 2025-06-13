@@ -93,4 +93,9 @@ export const AddLocationSchema = z.object({
     .max(1000, { message: 'Total slots cannot exceed 1000' })
     .int({ message: 'Total slots must be an integer' })
     .nonnegative({ message: 'Total slots cannot be negative' }),
+  
+  rate: z.number()
+    .min(2, { message: 'Rate must be at least 2' })
+    .max(1000, { message: 'Rate cannot exceed 1000' })
+    .nonnegative({ message: 'Rate cannot be negative' })  
 })
