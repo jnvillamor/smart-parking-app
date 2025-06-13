@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field, computed_field
 from typing import List
 from datetime import datetime
-from .reservation import ReservationUser
+from .reservation import ReservationResponse
 
 
 class ParkingBase(BaseModel):
@@ -13,26 +13,25 @@ class ParkingBase(BaseModel):
 class ParkingCreate(ParkingBase):
   pass
 
-class ParkingResponseLite(ParkingBase):
+class ParkingResponse(ParkingBase):
   id: int
   created_at: datetime
   updated_at: datetime
   is_active: bool
-  available_slots: int
+  reservations: List[ReservationResponse]
 
-  model_config = {
-    'from_attributes': True,
-  }
-
-class ParkingResponseDetail(ParkingResponseLite):
-  active_reservation: List[ReservationUser]
+  @computed_field
+  def available_slots(self) -> int:
+    if self.reservations:
+      return self.total_slots - len([r for r in self.reservations if r.status == 'Active' or 'Upcoming'])
+    return self.total_slots
 
   model_config = {
     'from_attributes': True,
   }
 
 class PaginatedParkingResponse(BaseModel):
-  parking_lots: List
+  parking_lots: List[ParkingResponse]
   total: int
   page: int
   limit: int

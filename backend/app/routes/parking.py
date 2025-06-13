@@ -2,16 +2,16 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 from app.core.database import get_db
-from app.utils import get_current_user, get_admin_user, get_parking_lots_with_available_slots
+from app.utils import get_current_user, get_admin_user
 from app.models import ParkingLot, User, Reservation
-from app.schema import ParkingCreate, ParkingResponseLite, ParkingResponseDetail, PaginatedParkingResponse, ParkingSummaryResponse
+from app.schema import ParkingCreate, ParkingResponse, PaginatedParkingResponse, ParkingSummaryResponse
 
 router = APIRouter(
   prefix="/parking",
   tags=["Parking"]
 )
 
-@router.post("/lots", response_model=ParkingResponseLite, status_code=status.HTTP_201_CREATED)
+@router.post("/lots", response_model=ParkingResponse, status_code=status.HTTP_201_CREATED)
 async def create_parking_lot(
   parking_lot: ParkingCreate,
   db: Session = Depends(get_db),
@@ -37,7 +37,7 @@ async def create_parking_lot(
     db.refresh(new_parking_lot)
 
     new_parking_lot.available_slots = new_parking_lot.total_slots  # Initialize available slots
-    return ParkingResponseLite.model_validate(new_parking_lot).model_dump()
+    return ParkingResponse.model_validate(new_parking_lot).model_dump()
      
   except HTTPException as e:
     db.rollback()
@@ -57,7 +57,6 @@ async def get_parking_lots(
   current_user: User = Depends(get_current_user),
   limit: int = 20,
   page: int = 1,
-  detailed: bool = False,
 ):
   """
   Endpoint to retrieve a list of parking lots. \n
@@ -70,15 +69,14 @@ async def get_parking_lots(
     offset = (page - 1) * limit
     total = db.query(ParkingLot).count()
 
-    if total > 0:
-      lots = get_parking_lots_with_available_slots(db, offset, limit, detailed)
+    lots = db.query(ParkingLot).offset(offset).limit(limit).all()
     
     return PaginatedParkingResponse(
       parking_lots=lots,
       total=total,
       page=page,
       limit=limit
-    )
+    ).model_dump()
 
   except HTTPException as e:
     print(f"Error retrieving parking lots: {e.detail}", flush=True)
@@ -90,7 +88,7 @@ async def get_parking_lots(
       detail="An error occurred while retrieving parking lots."
     )
 
-@router.get("/lots/{parking_lot_id}", response_model=ParkingResponseDetail, status_code=status.HTTP_200_OK)
+@router.get("/lots/{parking_lot_id}", response_model=ParkingResponse, status_code=status.HTTP_200_OK)
 async def get_parking_lot(
   parking_lot_id: int,
   db: Session = Depends(get_db),
@@ -109,7 +107,7 @@ async def get_parking_lot(
         detail="Parking lot not found."
       )
     
-    return ParkingResponseDetail.model_validate(parking_lot).model_dump()
+    return ParkingResponse.model_validate(parking_lot).model_dump()
 
   except HTTPException as e:
     print(f"Error retrieving parking lot: {e.detail}", flush=True)
@@ -121,7 +119,7 @@ async def get_parking_lot(
       detail="An error occurred while retrieving the parking lot."
     )
 
-@router.put("/lots/{parking_lot_id}", response_model=ParkingResponseDetail, status_code=status.HTTP_200_OK)
+@router.put("/lots/{parking_lot_id}", response_model=ParkingResponse, status_code=status.HTTP_200_OK)
 async def update_parking_lot(
   parking_lot_id: int,
   parking_lot_details: ParkingCreate,
@@ -158,7 +156,7 @@ async def update_parking_lot(
     db.commit()
     db.refresh(parking_lot)
 
-    return ParkingResponseDetail.model_validate(parking_lot).model_dump()
+    return ParkingResponse.model_validate(parking_lot).model_dump()
   except HTTPException as e:
     db.rollback()
     print(f"Error checking parking lot existence: {e.detail}", flush=True)
