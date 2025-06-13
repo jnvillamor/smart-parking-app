@@ -5,7 +5,7 @@ import { AddLocationSchema } from './schema';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { revalidatePath } from 'next/cache';
-import { ParginatedParkingLocations, ParkingSummary } from './types';
+import { PaginatedParkingLocations, ParkingSummary } from './types';
 
 export const createParkingLocation = async (data: z.infer<typeof AddLocationSchema>) => {
   const session = await getServerSession(authOptions);
@@ -72,7 +72,7 @@ export const getParkingLocations = async () => {
       };
     }
 
-    const data = await res.json() as ParginatedParkingLocations;
+    const data = await res.json() as PaginatedParkingLocations;
     return {
       success: true,
       data: data,

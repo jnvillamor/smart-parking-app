@@ -38,7 +38,7 @@ export interface ParkingLocation {
   active_reservations?: [];
 }
 
-export interface ParginatedParkingLocations {
+export interface PaginatedParkingLocations {
   total: number;
   page: number;
   limit: number;
