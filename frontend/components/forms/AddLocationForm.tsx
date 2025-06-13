@@ -8,27 +8,50 @@ import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { createParkingLocation } from '@/lib/parking';
 import { toast } from 'sonner';
+import { ParkingLocation } from '@/lib/types';
 
 type AddLocationFormValues = z.infer<typeof AddLocationSchema>;
+interface AddLocationFormProps {
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setEditingLocation?: React.Dispatch<React.SetStateAction<number | null>>;
+  defaultValues?: ParkingLocation;
+}
 
-const AddLocationForm = ({ setIsOpen }: { setIsOpen: React.Dispatch<React.SetStateAction<boolean>> }) => {
+const AddLocationForm = ({ setIsOpen, setEditingLocation, defaultValues }: AddLocationFormProps) => {
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting }
   } = useForm<AddLocationFormValues>({
-    resolver: zodResolver(AddLocationSchema)
+    resolver: zodResolver(AddLocationSchema),
+    defaultValues: {
+      name: defaultValues?.name || '',
+      location: defaultValues?.location || '',
+      total_slots: defaultValues?.total_slots || 2,
+      rate: defaultValues?.rate || 2
+    }
   });
 
   const onSubmit = async (data: AddLocationFormValues) => {
-    const res = await createParkingLocation(data);
+    const res = defaultValues ? await createParkingLocation(data) : await createParkingLocation(data);
     if (res.success) {
       setIsOpen(false);
       toast.success(res.message);
     } else {
       toast.error(res.message);
     }
+
+    if (setEditingLocation) {
+      setEditingLocation(null);
+    }
   };
+
+  const handleCancel = () => {
+    setIsOpen(false);
+    if (setEditingLocation) {
+      setEditingLocation(null);
+    }
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
@@ -66,7 +89,7 @@ const AddLocationForm = ({ setIsOpen }: { setIsOpen: React.Dispatch<React.SetSta
 
       <div className='flex justify-end'>
         <div className='flex items-center gap-4'>
-          <Button type='button' variant='outline' onClick={() => setIsOpen(false)}>
+          <Button type='button' variant='outline' onClick={() => handleCancel()}>
             Cancel
           </Button>
           <Button type='submit' disabled={isSubmitting}>

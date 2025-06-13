@@ -16,7 +16,15 @@ import {
   AlertDialogTrigger
 } from './ui/alert-dialog';
 
-const LocationTableActionButton = ({ location_id }: { location_id: number }) => {
+const LocationTableActionButton = ({
+  location_id,
+  setEditingLocation,
+  setIsOpenDialog
+}: {
+  location_id: number;
+  setEditingLocation: React.Dispatch<React.SetStateAction<number | null>>;
+  setIsOpenDialog: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
   const [open, setOpen] = React.useState(false);
   const [isDeleting, setIsDeleting] = React.useState(false);
 
@@ -33,6 +41,11 @@ const LocationTableActionButton = ({ location_id }: { location_id: number }) => 
     setIsDeleting(false);
     setOpen(false);
   };
+
+  const handleEdit = () => {
+    setEditingLocation(location_id);
+    setIsOpenDialog(true);
+  }
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
@@ -52,7 +65,7 @@ const LocationTableActionButton = ({ location_id }: { location_id: number }) => 
       </AlertDialogContent>
 
       <div className='flex items-center gap-2'>
-        <Button variant='outline' size='sm' className='cursor-pointer'>
+        <Button onClick={() => handleEdit()} variant='outline' size='sm' className='cursor-pointer'>
           <Edit className='h-4 w-4' />
         </Button>
         <AlertDialogTrigger asChild>
