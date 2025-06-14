@@ -30,7 +30,7 @@ const ReservationFilters = () => {
     }
 
     handleSearch();
-  }, [searchTerm, status])
+  }, [searchTerm, status, router, searchParams]);
 
   return (
     <Card>

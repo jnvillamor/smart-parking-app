@@ -6,7 +6,6 @@ import { ArrowUpDown } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation';
 
 const SortingButton = ({ title }: { title: string }) => {
-  const [_, setOrder] = React.useState<'asc' | 'desc'>('asc')
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -17,17 +16,14 @@ const SortingButton = ({ title }: { title: string }) => {
 
     if (currentSort === title) {
       if (currentOrder === 'asc') {
-        setOrder('desc');
         params.set('order', 'desc');
       } else {
-        setOrder('asc');
         params.set('order', 'asc');
       }
     } else {
       params.set('sort', title);
       params.set('order', 'asc');
       params.set('page', '1');
-      setOrder('asc');
     }
 
     // Update the URL with the new search parameters

@@ -4,7 +4,7 @@ import { z } from "zod";
 import { UpdatePasswordSchema, UpdateProfileSchema } from "./schema";
 import { getServerSession, Session } from "next-auth";
 import { revalidatePath } from "next/cache";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/app/api/auth/options";
 
 export const updateUserProfile = async (data: z.infer<typeof UpdateProfileSchema>, session: Session) => {
   try {

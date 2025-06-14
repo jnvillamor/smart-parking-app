@@ -1,4 +1,3 @@
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import ProfileForm from '@/components/forms/ProfileForm';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { SidebarTrigger } from '@/components/ui/sidebar';
@@ -6,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import UpdatePasswordForm from '@/components/forms/UpdatePasswordForm';
 import { getServerSession } from 'next-auth';
 import React from 'react';
+import { authOptions } from '@/app/api/auth/options';
 
 const ProfilePage = async () => {
   const session = await getServerSession(authOptions);

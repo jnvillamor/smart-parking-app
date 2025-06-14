@@ -1,6 +1,6 @@
 "use client"
 
-import { Car, LayoutDashboard, MapPin, Calendar, Users, Settings } from "lucide-react"
+import { Car, LayoutDashboard, MapPin, Calendar, Settings } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,

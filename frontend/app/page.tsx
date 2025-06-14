@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth"
-import { authOptions } from "./api/auth/[...nextauth]/route"
 import LogoutButton from "@/components/LogoutButton";
+import { authOptions } from "./api/auth/options";
 
 export default async function Home() {
   const session = await getServerSession(authOptions);
@@ -14,7 +14,6 @@ export default async function Home() {
           <p>Email: {session.user?.email}</p>
           <p>Role: {session.user?.role}</p>
           <p>AccessToken: {session.accessToken}</p>
-          <p>RefreshToken: {session.refreshToken}</p>
           <LogoutButton />
         </div>
       ) : (

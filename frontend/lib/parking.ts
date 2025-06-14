@@ -3,9 +3,9 @@
 import { z } from 'zod';
 import { AddLocationSchema } from './schema';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { revalidatePath } from 'next/cache';
 import { PaginatedParkingLocations, ParkingSummary } from './types';
+import { authOptions } from '@/app/api/auth/options';
 
 export const createParkingLocation = async (data: z.infer<typeof AddLocationSchema>) => {
   const session = await getServerSession(authOptions);

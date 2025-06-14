@@ -1,10 +1,10 @@
 'use server';
 
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { getServerSession } from 'next-auth';
 import { PaginatedReservations, ReservationSummary } from './types';
 import { SearchParams } from 'next/dist/server/request/search-params';
 import { revalidatePath } from 'next/cache';
+import { authOptions } from '@/app/api/auth/options';
 
 export const getReservationSummary = async () => {
   const session = await getServerSession(authOptions);

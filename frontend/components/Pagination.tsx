@@ -37,7 +37,7 @@ const Pagination = ({ type, data }: PaginationProps) => {
     };
 
     updateSearchParams();
-  }, [itemsPerPage, currentPage]);
+  }, [itemsPerPage, currentPage, searchParams, router, type]);
 
   const getMinPage = () => {
     switch (type) {
@@ -50,7 +50,7 @@ const Pagination = ({ type, data }: PaginationProps) => {
   }
 
   return (
-    <div className='flex items-center justify-between px-2 py-4'>
+    <div className='flex flex-col gap-5 md:flex-row items-center justify-between px-2 py-4'>
       <div className='flex items-center space-x-2'>
         <p className='text-sm text-muted-foreground'>
           Showing {(data.page - 1) * data.limit + 1} to {getMinPage()} of {data.total} {type}
@@ -74,7 +74,7 @@ const Pagination = ({ type, data }: PaginationProps) => {
           disabled={!data.has_previous}
           onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
           className='cursor-pointer'>
-          <ChevronLeft className='h-4 w-4' /> Previous
+          <ChevronLeft className='h-4 w-4' /> <span className="hidden md:inline">Previous</span> 
         </Button>
         {Array.from({ length: Math.min(5, data.total_pages) }, (_, i) => {
           let pageNumber;
@@ -105,7 +105,10 @@ const Pagination = ({ type, data }: PaginationProps) => {
           disabled={!data.has_next}
           onClick={() => setCurrentPage((prev) => Math.min(data.total_pages, prev + 1))}
           className='cursor-pointer'>
-          Next <ChevronRight className='h-4 w-4' />
+            <span className='hidden md:inline'>
+              Next
+            </span>
+          <ChevronRight className='h-4 w-4' />
         </Button>
       </div>
     </div>

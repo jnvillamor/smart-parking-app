@@ -12,15 +12,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 const LocationFilters = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [name, setName] = React.useState<string | null>(searchParams.get('name') || null);
-  const [status, setStatus] = React.useState<string>('all');
+  const [name, setName] = React.useState<string>(searchParams.get('name') || "");
+  const [status, setStatus] = React.useState<string>(searchParams.get('status') || 'all');
 
   useEffect(() => {
     // If the name changes, wait for a short delay before updating the URL
     const timer = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
+      console.log('Current search params:', params.toString());
+      console.log('Current name:', name);
+      console.log('Current status:', status);
 
-      const currentName = searchParams.get('name') || null;
+      const currentName = searchParams.get('name') || "";
       const currentStatus = searchParams.get('status') || 'all';
 
       const filtersChanged = currentName !== name || currentStatus !== status;
@@ -44,7 +47,7 @@ const LocationFilters = () => {
     }, 250);
 
     return () => clearTimeout(timer);
-  }, [name, status]);
+  }, [name, status, router, searchParams]);
 
   return (
     <Card>
