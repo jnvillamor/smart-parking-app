@@ -47,3 +47,10 @@ export interface PaginatedParkingLocations {
   has_previous: boolean;
   parking_lots: ParkingLocation[];
 }
+
+export interface ReservationSummary { 
+  total_reservations: number;
+  total_active_reservations: number;
+  total_completed_reservations: number;
+  total_upcoming_reservations: number;
+}
