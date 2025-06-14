@@ -33,11 +33,6 @@ const menuItems = [
     icon: Calendar,
   },
   {
-    title: "Users",
-    url: "/admin/users",
-    icon: Users,
-  },
-  {
     title: "Settings",
     url: "/admin/settings",
     icon: Settings,
