@@ -19,6 +19,12 @@ const LocationFilters = () => {
     // If the name changes, wait for a short delay before updating the URL
     const timer = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
+
+      const currentName = searchParams.get('name') || null;
+      const currentStatus = searchParams.get('status') || 'all';
+
+      const filtersChanged = currentName !== name || currentStatus !== status;
+
       if (name) {
         params.set('name', name);
       } else {
@@ -31,14 +37,14 @@ const LocationFilters = () => {
         params.delete('status');
       }
 
-      params.set('page', '1');
+      if(filtersChanged) params.set('page', '1');
 
       // Update the URL with the new search parameters
       router.push(`/admin/locations?${params.toString()}`);
     }, 250);
 
     return () => clearTimeout(timer);
-  }, [name, status, searchParams]);
+  }, [name, status]);
 
   return (
     <Card>

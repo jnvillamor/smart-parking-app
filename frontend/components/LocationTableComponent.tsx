@@ -7,7 +7,7 @@ import LocationTableActionButton from './LocationTableActionButton';
 import LocationTableStatusButton from './LocationTableStatusButton';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import { Button } from './ui/button';
-import { Plus } from 'lucide-react';
+import { MapPin, Plus } from 'lucide-react';
 import AddLocationForm from './forms/AddLocationForm';
 import { PaginatedParkingLocations, ParkingLocation } from '@/lib/types';
 
@@ -31,7 +31,7 @@ const LocationTableComponent = ({ locationsData }: { locationsData: PaginatedPar
     <Card>
       <CardHeader className='flex items-center justify-between space-y-0 pb-2 gap-4'>
         <div className='space-y-2'>
-          <CardTitle className='text-2xl font-semibold leading-none tracking-tight'>All Parking Locations</CardTitle>
+          <CardTitle className='text-2xl font-semibold leading-none tracking-tight'>All Parking Locations ({locationsData.total})</CardTitle>
           <CardDescription>Manage your parking locations and their settings</CardDescription>
         </div>
         <Dialog open={isOpenDialog} onOpenChange={setIsOpenDialog}>
@@ -87,6 +87,12 @@ const LocationTableComponent = ({ locationsData }: { locationsData: PaginatedPar
             ))}
           </TableBody>
         </Table>
+        {locationsData.parking_lots.length === 0 && (
+          <div className='text-center py-12'>
+            <MapPin className='h-12 w-12 text-muted-foreground mx-auto mb-4' />
+            <h3 className='text-lg font-semibold mb-2'>No locations found</h3>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
