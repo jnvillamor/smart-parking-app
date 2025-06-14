@@ -5,9 +5,9 @@ from datetime import datetime, timezone
 from typing import Literal
 
 from app.models import Reservation, User, ParkingLot
-from app.schema import ReservationCreate, ReservationResponse, PaginatedReservations
+from app.schema import ReservationCreate, ReservationResponse, PaginatedReservations, ReservationSummary
 from app.core.database import get_db
-from app.utils import get_current_user, is_valid_request
+from app.utils import get_current_user, is_valid_request, get_admin_user
 
 router = APIRouter(
   prefix="/reservations",
@@ -109,4 +109,47 @@ async def get_reservations(
       detail="Failed to retrieve reservations. Please try again later."
     )
 
-# @router.get("/summary")
+@router.get("/summary", response_model=ReservationSummary, status_code=status.HTTP_200_OK)
+async def  get_reservation_summary(
+  db: Session = Depends(get_db),
+  current_user: User = Depends(get_admin_user)
+):
+  """
+  Get a summary of reservations.
+  """
+  try:
+    now = datetime.now(timezone.utc)
+
+    total_reservations = db.query(Reservation).count()
+    total_active_reservations = db.query(Reservation).filter(
+      Reservation.start_time <= now,
+      Reservation.end_time >= now,
+      Reservation.is_cancelled == False
+    ).count()
+
+    total_upcoming_reservations = db.query(Reservation).filter(
+      Reservation.start_time > now,
+      Reservation.is_cancelled == False
+    ).count()
+
+    total_completed_reservations = db.query(Reservation).filter(
+      Reservation.end_time < now,
+      Reservation.is_cancelled == False
+    ).count()
+
+    return ReservationSummary(
+      total_reservations=total_reservations,
+      total_active_reservations=total_active_reservations,
+      total_upcoming_reservations=total_upcoming_reservations,
+      total_completed_reservations=total_completed_reservations
+    ).model_dump()
+    
+  except HTTPException as e:
+    print(f"Validation error: {e.detail}", flush=True)
+    raise e
+  except Exception as e:
+    print(f"Error retrieving reservation summary: {e}", flush=True)
+    raise HTTPException(
+      status_code=status.HTTP_400_BAD_REQUEST,
+      detail="Failed to retrieve reservation summary. Please try again later."
+    )
