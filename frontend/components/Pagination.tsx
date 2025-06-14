@@ -1,6 +1,6 @@
 'use client';
 
-import { ParkingLocation } from '@/lib/types';
+import { ParkingLocation, Reservation } from '@/lib/types';
 import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Button } from './ui/button';
@@ -17,6 +17,7 @@ type PaginationProps = {
     has_previous: boolean;
     total_pages: number;
     parking_lots?: ParkingLocation[];
+    reservations?: Reservation[];
   };
 };
 
@@ -38,11 +39,21 @@ const Pagination = ({ type, data }: PaginationProps) => {
     updateSearchParams();
   }, [itemsPerPage, currentPage]);
 
+  const getMinPage = () => {
+    switch (type) {
+      case 'locations':
+        return Math.min(data.page * data.limit, data.parking_lots?.length || 0);
+      case 'reservations':
+        return Math.min(data.page * data.limit, data.reservations?.length || 0);
+    }
+    return Math.min(data.page * data.limit, data.total);
+  }
+
   return (
     <div className='flex items-center justify-between px-2 py-4'>
       <div className='flex items-center space-x-2'>
         <p className='text-sm text-muted-foreground'>
-          Showing {(data.page - 1) * data.limit + 1} to {Math.min(data.page * data.limit, data.parking_lots?.length || 0)} of {data.total} {type}
+          Showing {(data.page - 1) * data.limit + 1} to {getMinPage()} of {data.total} {type}
         </p>
         <Select value={itemsPerPage.toString()} onValueChange={(value) => setItemsPerPage(parseInt(value))}>
           <SelectTrigger className='w-20'>

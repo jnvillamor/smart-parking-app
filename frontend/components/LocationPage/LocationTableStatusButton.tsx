@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Badge } from './ui/badge';
+import { Badge } from '../ui/badge';
 import { toggleParkingLocationStatus } from '@/lib/parking';
 import { toast } from 'sonner';
 import { ParkingLocation } from '@/lib/types';

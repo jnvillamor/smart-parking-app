@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
 import { Edit, Trash } from 'lucide-react';
 import { deleteParkingLocation } from '@/lib/parking';
 import { toast } from 'sonner';
@@ -14,7 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger
-} from './ui/alert-dialog';
+} from '../ui/alert-dialog';
 
 const LocationTableActionButton = ({
   location_id,

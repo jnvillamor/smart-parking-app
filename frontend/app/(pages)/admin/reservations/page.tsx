@@ -1,9 +1,13 @@
-import ReservationFilters from '@/components/ReservationFilters';
-import ReservationSummaryCard from '@/components/ReservationSummaryCard';
+import ReservationFilters from '@/components/ReservationPage/ReservationFilters';
+import ReservationSummaryCard from '@/components/ReservationPage/ReservationSummaryCard';
+import ReservationTable from '@/components/ReservationPage/ReservationTable';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import { SearchParams } from 'next/dist/server/request/search-params';
 import React from 'react';
 
-const ReservationPage = () => {
+const ReservationPage = async ({ searchParams }: { searchParams: Promise<SearchParams>}) => {
+  const params = await searchParams;
+  
   return (
     <>
       <header className='flex h-16 shrink-0 items-center gap-2 border-b px-4'>
@@ -18,6 +22,9 @@ const ReservationPage = () => {
 
         {/* Filters Section */}
         <ReservationFilters /> 
+
+        {/* Reservation Table */}
+        <ReservationTable params={params}/>
       </div>
     </>
   );

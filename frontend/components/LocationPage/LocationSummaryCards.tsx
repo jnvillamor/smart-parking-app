@@ -1,9 +1,9 @@
 import { getParkingSummary } from '@/lib/parking';
 import React from 'react';
 import { MapPin } from 'lucide-react';
-import SummaryCard from './SummaryCard';
+import SummaryCard from '../SummaryCard';
 
-const LocationLocationSummaryCards = async () => {
+const LocationSummaryCards = async () => {
   const summaryData = await getParkingSummary();
 
   if (!summaryData.success) {
@@ -42,4 +42,4 @@ const LocationLocationSummaryCards = async () => {
   );
 };
 
-export default LocationLocationSummaryCards;
+export default LocationSummaryCards;

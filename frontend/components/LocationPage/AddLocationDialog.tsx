@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from 'react'
-import { Button } from './ui/button';
 import { Plus } from 'lucide-react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
-import AddLocationForm from './forms/AddLocationForm';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
+import { Button } from '../ui/button';
+import AddLocationForm from '../forms/AddLocationForm';
 
 const AddLocationDialog = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false)

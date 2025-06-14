@@ -1,16 +1,16 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import LocationTableActionButton from './LocationTableActionButton';
 import LocationTableStatusButton from './LocationTableStatusButton';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
-import { Button } from './ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
+import { Button } from '../ui/button';
 import { MapPin, Plus } from 'lucide-react';
-import AddLocationForm from './forms/AddLocationForm';
+import AddLocationForm from '../forms/AddLocationForm';
 import { PaginatedParkingLocations, ParkingLocation } from '@/lib/types';
-import Pagination from './Pagination';
+import Pagination from '../Pagination';
 
 const LocationTableComponent = ({ locationsData }: { locationsData: PaginatedParkingLocations }) => {
   const [isOpenDialog, setIsOpenDialog] = React.useState<boolean>(false);

@@ -48,9 +48,35 @@ export interface PaginatedParkingLocations {
   parking_lots: ParkingLocation[];
 }
 
+export interface Reservation {
+  id: number;
+  parking_id: number;
+  user_id: number;
+  start_time: string;
+  end_time: string;
+  is_cancelled: boolean;
+  created_at: string;
+  updated_at: string;
+  user: UserProfile;
+  parking: ParkingLocation;
+  duration: number; // in hours
+  status: 'Active' | 'Completed' | 'Cancelled' | 'Upcoming';
+  total_cost: number;
+}
+
 export interface ReservationSummary { 
   total_reservations: number;
   total_active_reservations: number;
   total_completed_reservations: number;
   total_upcoming_reservations: number;
+}
+
+export interface PaginatedReservations {
+  total: number;
+  page: number;
+  limit: number;
+  total_pages: number;
+  has_next: boolean;
+  has_previous: boolean;
+  reservations: Reservation[];
 }

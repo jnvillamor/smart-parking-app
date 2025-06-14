@@ -1,7 +1,7 @@
 import { getReservationSummary } from '@/lib/reservation';
 import { Calendar, CheckCircle2, Clock } from 'lucide-react';
 import React from 'react';
-import SummaryCard from './SummaryCard';
+import SummaryCard from '../SummaryCard';
 
 const ReservationSummaryCard = async () => {
   const reservations = await getReservationSummary();
