@@ -1,5 +1,5 @@
 import LocationTable from '@/components/LocationTable'
-import SummaryCards from '@/components/SummaryCards'
+import SummaryCards from '@/components/LocationSummaryCards'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { SearchParams } from 'next/dist/server/request/search-params'
 import React from 'react'

@@ -1,9 +1,9 @@
 import { getParkingSummary } from '@/lib/parking';
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { MapPin } from 'lucide-react';
+import SummaryCard from './SummaryCard';
 
-const SummaryCards = async () => {
+const LocationLocationSummaryCards = async () => {
   const summaryData = await getParkingSummary();
 
   if (!summaryData.success) {
@@ -36,18 +36,10 @@ const SummaryCards = async () => {
   return (
     <div className='grid grid-cols-2 gap-4 md:grid-cols-4'>
       {summary.map((item, index) => (
-        <Card key={index}>
-          <CardHeader className='flex items-center justify-between space-y-0 pb-2'>
-            <CardTitle className='text-sm font-medium'>{item.title}</CardTitle>
-            {item.icon}
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{item.value}</div>
-          </CardContent>
-        </Card>
+        <SummaryCard key={index} title={item.title} value={item.value} icon={item.icon} />
       ))}
     </div>
   );
 };
 
-export default SummaryCards;
+export default LocationLocationSummaryCards;
