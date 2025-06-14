@@ -5,6 +5,7 @@ from app.core.database import get_db
 from app.utils import get_current_user, get_admin_user
 from app.models import ParkingLot, User, Reservation
 from app.schema import ParkingCreate, ParkingResponse, PaginatedParkingResponse, ParkingSummaryResponse
+from typing import Literal
 
 router = APIRouter(
   prefix="/parking",
@@ -57,6 +58,8 @@ async def get_parking_lots(
   current_user: User = Depends(get_current_user),
   limit: int = 20,
   page: int = 1,
+  name: str = None,
+  status: Literal["active", "inactive", "all"] = "all",
 ):
   """
   Endpoint to retrieve a list of parking lots. \n
@@ -69,7 +72,12 @@ async def get_parking_lots(
     offset = (page - 1) * limit
     total = db.query(ParkingLot).count()
 
-    lots = db.query(ParkingLot).offset(offset).limit(limit).all()
+    filtered_query = db.query(ParkingLot).filter(
+      ParkingLot.is_active == (status == "active") if status in ["active", "inactive"] else True,
+      ParkingLot.name.ilike(f"%{name}%") if name else True
+    )
+
+    lots = filtered_query.offset(offset).limit(limit).all()
     
     return PaginatedParkingResponse(
       parking_lots=lots,
