@@ -1,3 +1,4 @@
+import ReservationFilters from '@/components/ReservationFilters';
 import ReservationSummaryCard from '@/components/ReservationSummaryCard';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import React from 'react';
@@ -14,6 +15,9 @@ const ReservationPage = () => {
       <div className='flex-1 space-y-4 p-4 md:p-8 pt-6'>
         {/* Summary Cards */}
         <ReservationSummaryCard />
+
+        {/* Filters Section */}
+        <ReservationFilters /> 
       </div>
     </>
   );
