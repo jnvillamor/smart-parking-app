@@ -62,6 +62,8 @@ async def get_reservations(
   page: int = 1,
   limit: int = 10,
   term: str = None,
+  sort: Literal["id", "user", "status", "time", "name", "parking"] = "id",
+  order: Literal["asc", "desc"] = "desc",
   status: Literal["active", "upcoming", "completed", "cancelled", "all"] = "all", 
   db: Session = Depends(get_db),
   current_user: User = Depends(get_current_user)
@@ -97,7 +99,26 @@ async def get_reservations(
 
     total = query.count()
     total_pages = (total + limit - 1) // limit
-    reservations = query.order_by(Reservation.start_time.desc()).offset((page - 1) * limit).limit(limit).all()
+    if (sort == "user"):
+      reservations = query.order_by(
+        getattr(User, "first_name").asc() if order == "asc" else getattr(User, "first_name").desc()
+      )
+    elif (sort == "parking"):
+      reservations = query.order_by(
+        getattr(ParkingLot, "name").asc() if order == "asc" else getattr(ParkingLot, "name").desc()
+      )
+    elif (sort == "status"):
+      reservations = query.order_by(
+        Reservation.is_cancelled.asc() if order == "asc" else Reservation.is_cancelled.desc()
+      )
+    elif (sort == "time"):
+      reservations = query.order_by(
+        Reservation.start_time.asc() if order == "asc" else Reservation.start_time.desc()
+      )
+    else:
+      reservations = query.order_by(
+        Reservation.id.asc() if order == "asc" else Reservation.id.desc()
+      )
 
     return PaginatedReservations(
       reservations=reservations,
