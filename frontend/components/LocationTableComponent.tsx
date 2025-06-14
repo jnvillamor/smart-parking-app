@@ -10,6 +10,7 @@ import { Button } from './ui/button';
 import { MapPin, Plus } from 'lucide-react';
 import AddLocationForm from './forms/AddLocationForm';
 import { PaginatedParkingLocations, ParkingLocation } from '@/lib/types';
+import Pagination from './Pagination';
 
 const LocationTableComponent = ({ locationsData }: { locationsData: PaginatedParkingLocations }) => {
   const [isOpenDialog, setIsOpenDialog] = React.useState<boolean>(false);
@@ -87,6 +88,7 @@ const LocationTableComponent = ({ locationsData }: { locationsData: PaginatedPar
             ))}
           </TableBody>
         </Table>
+        {locationsData.parking_lots.length > 0 && <Pagination type='locations' data={locationsData} />}
         {locationsData.parking_lots.length === 0 && (
           <div className='text-center py-12'>
             <MapPin className='h-12 w-12 text-muted-foreground mx-auto mb-4' />
