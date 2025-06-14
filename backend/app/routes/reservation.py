@@ -63,7 +63,7 @@ async def get_reservations(
   limit: int = 10,
   term: str = None,
   sort: Literal["id", "user", "status", "time", "name", "parking"] = "id",
-  order: Literal["asc", "desc"] = "desc",
+  order: Literal["asc", "desc"] = "asc",
   status: Literal["active", "upcoming", "completed", "cancelled", "all"] = "all", 
   db: Session = Depends(get_db),
   current_user: User = Depends(get_current_user)
