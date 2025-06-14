@@ -10,8 +10,26 @@ class ParkingBase(BaseModel):
   total_slots: int = Field(..., ge=2, description="Total number of slots must be greater than 1")
   rate: float = Field(..., ge=1, description="Rate per hour")
 
+  model_config = {
+    'from_attributes': True,
+  }
+
 class ParkingCreate(ParkingBase):
   pass
+
+class ParkingResponseWithoutReservations(ParkingBase):
+  id: int
+  created_at: datetime
+  updated_at: datetime
+  is_active: bool
+
+  @computed_field
+  def available_slots(self) -> int:
+    return self.total_slots
+
+  model_config = {
+    'from_attributes': True,
+  }
 
 class ParkingResponse(ParkingBase):
   id: int
