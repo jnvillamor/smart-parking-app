@@ -70,20 +70,21 @@ async def get_parking_lots(
   try:
     # Calculate offset for pagination
     offset = (page - 1) * limit
-    total = db.query(ParkingLot).count()
 
     filtered_query = db.query(ParkingLot).filter(
       ParkingLot.is_active == (status == "active") if status in ["active", "inactive"] else True,
       ParkingLot.name.ilike(f"%{name}%") if name else True
     )
-
+    total = filtered_query.count()
+    total_pages = (total + limit - 1) // limit
     lots = filtered_query.offset(offset).limit(limit).all()
     
     return PaginatedParkingResponse(
       parking_lots=lots,
       total=total,
       page=page,
-      limit=limit
+      limit=limit,
+      total_pages=total_pages
     ).model_dump()
 
   except HTTPException as e:

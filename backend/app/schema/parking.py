@@ -35,6 +35,7 @@ class PaginatedParkingResponse(BaseModel):
   total: int
   page: int
   limit: int
+  total_pages: int
 
   @computed_field
   def has_next(self) -> bool:
