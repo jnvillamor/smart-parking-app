@@ -25,9 +25,9 @@ class ReservationResponse(ReservationBase):
   parking: "ParkingResponseWithoutReservations" 
 
   @computed_field
-  def duration(self) -> int:
+  def duration(self) -> float:
     """Calculate the duration of the reservation in hours"""
-    return int((self.end_time - self.start_time).total_seconds() / 3600)
+    return (self.end_time - self.start_time).total_seconds() / 3600
 
   @computed_field
   def status(self) -> str:

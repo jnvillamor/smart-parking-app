@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import select, String, or_
+from sqlalchemy import select, String, or_, and_
 from fastapi import APIRouter, Depends, HTTPException, status
 from datetime import datetime, timezone
 from typing import Literal
@@ -62,7 +62,7 @@ async def get_reservations(
   page: int = 1,
   limit: int = 10,
   term: str = None,
-  status: Literal["active", "upcoming", "completed", "cancelled"] = None, 
+  status: Literal["active", "upcoming", "completed", "cancelled", "all"] = "all", 
   db: Session = Depends(get_db),
   current_user: User = Depends(get_current_user)
 ):
@@ -75,6 +75,7 @@ async def get_reservations(
   """
 
   try:
+    now = datetime.now(timezone.utc)
     query = db.query(Reservation).join(Reservation.user).join(Reservation.parking).filter(
       or_(
         Reservation.id.cast(String).ilike(f"%{term}%") if term else True,
@@ -82,9 +83,16 @@ async def get_reservations(
         ParkingLot.name.ilike(f"%{term}%") if term else True,
       ),
       Reservation.is_cancelled == (status == "cancelled") if status == "cancelled" else True,
-      (Reservation.start_time <= datetime.now(timezone.utc) <= Reservation.end_time) if status == "active" else True,
-      (Reservation.start_time > datetime.now(timezone.utc)) if status == "upcoming" else True,
-      (Reservation.end_time < datetime.now(timezone.utc)) if status == "completed" else True
+      and_(
+        Reservation.start_time <= now,
+        Reservation.end_time >= now
+      ) if status == "active" else True,
+      and_(
+        Reservation.start_time > now
+      ) if status == "upcoming" else True,
+      and_(
+        Reservation.end_time < now
+      ) if status == "completed" else True,
     )
 
     total = query.count()
@@ -152,4 +160,56 @@ async def  get_reservation_summary(
     raise HTTPException(
       status_code=status.HTTP_400_BAD_REQUEST,
       detail="Failed to retrieve reservation summary. Please try again later."
+    )
+
+@router.patch("/{reservation_id}/cancel", status_code=status.HTTP_200_OK)
+async def cancel_reservation(
+  reservation_id: int,
+  db: Session = Depends(get_db),
+  current_user: User = Depends(get_current_user)
+):
+  """
+  Cancel a reservation by ID.
+  param reservation_id: ID of the reservation to cancel
+  """
+  try:
+    reservation = db.execute(
+      select(Reservation).where(Reservation.id == reservation_id)
+    ).scalar_one_or_none()
+
+    if not reservation:
+      raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Reservation not found."
+      )
+
+    # Check if the reservation is already cancelled or if it is currently active
+    is_active = reservation.start_time <= datetime.now(timezone.utc) <= reservation.end_time
+    if reservation.is_cancelled or is_active:
+      raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Reservation is already cancelled."
+      )
+    
+    if reservation.user_id != current_user.id and current_user.role != "admin":
+      raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="You do not have permission to cancel this reservation."
+      )
+
+    # Update the reservation status
+    reservation.is_cancelled = True
+    db.commit()
+    db.refresh(reservation)
+
+    return {"message": "Reservation cancelled successfully."}
+
+  except HTTPException as e:
+    print(f"Validation error: {e.detail}", flush=True)
+    raise e
+  except Exception as e:
+    print(f"Error cancelling reservation: {e}", flush=True)
+    raise HTTPException(
+      status_code=status.HTTP_400_BAD_REQUEST,
+      detail="Failed to cancel reservation. Please try again later."
     )
