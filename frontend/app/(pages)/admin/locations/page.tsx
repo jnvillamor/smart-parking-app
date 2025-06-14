@@ -1,9 +1,11 @@
 import LocationTable from '@/components/LocationTable'
 import SummaryCards from '@/components/SummaryCards'
 import { SidebarTrigger } from '@/components/ui/sidebar'
+import { SearchParams } from 'next/dist/server/request/search-params'
 import React from 'react'
 
-const LocationPage = () => {
+const LocationPage = async ({ searchParams }: { searchParams: Promise<SearchParams>}) => {
+  const params = await searchParams;
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
@@ -17,7 +19,7 @@ const LocationPage = () => {
         <SummaryCards />
 
         {/* Location Table */}
-        <LocationTable />
+        <LocationTable  searchParams={params}/>
       </div>
     </>
   )

@@ -47,7 +47,12 @@ export const createParkingLocation = async (data: z.infer<typeof AddLocationSche
   }
 };
 
-export const getParkingLocations = async () => {
+export const getParkingLocations = async (
+  page: number = 1,
+  limit: number = 10,
+  name?: string,
+  status: string = 'all',
+) => {
   const session = await getServerSession(authOptions);
   if (!session) {
     return {
@@ -56,8 +61,15 @@ export const getParkingLocations = async () => {
     };
   }
 
+  const params = new URLSearchParams()
+  if (name) params.set('name', name);
+  params.set('status', status);
+  params.set('page', page.toString());
+  params.set('limit', limit.toString());
+
+
   try {
-    const res = await fetch(`${process.env.API_BASE_URL}/parking/lots`, {
+    const res = await fetch(`${process.env.API_BASE_URL}/parking/lots?${params.toString()}`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${session.accessToken}`

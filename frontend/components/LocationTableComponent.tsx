@@ -30,7 +30,7 @@ const LocationTableComponent = ({ locationsData }: { locationsData: PaginatedPar
   return (
     <Card>
       <CardHeader className='flex items-center justify-between space-y-0 pb-2 gap-4'>
-        <div className='space-y'>
+        <div className='space-y-2'>
           <CardTitle className='text-2xl font-semibold leading-none tracking-tight'>All Parking Locations</CardTitle>
           <CardDescription>Manage your parking locations and their settings</CardDescription>
         </div>
