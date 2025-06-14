@@ -234,6 +234,7 @@ async def get_parking_summary(
     total_available_slots = db.query(func.sum(ParkingLot.total_slots)).scalar() or 0
     total_reserved_slots = db.query(Reservation).filter(
       Reservation.end_time > now,
+      Reservation.is_cancelled == False
     ).count()
 
     return ParkingSummaryResponse(

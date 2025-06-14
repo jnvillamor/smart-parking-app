@@ -41,7 +41,7 @@ class ParkingResponse(ParkingBase):
   @computed_field
   def available_slots(self) -> int:
     if self.reservations:
-      return self.total_slots - len([r for r in self.reservations if r.status == 'Active' or 'Upcoming'])
+      return self.total_slots - len([r for r in self.reservations if r.status == 'Active' or r.status == 'Upcoming'])
     return self.total_slots
 
   model_config = {
