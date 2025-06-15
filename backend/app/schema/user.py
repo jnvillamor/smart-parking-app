@@ -36,6 +36,8 @@ class UserResponse(UserBase):
   }
 
 class UserProfile(UserResponse):
+  last_login: datetime
+  last_seen: datetime
   created_at: datetime
   updated_at: datetime
 

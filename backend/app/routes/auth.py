@@ -5,6 +5,7 @@ from app.utils import hash_password, verify_password, create_token, get_current_
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import APIRouter, Depends, HTTPException, status
+from datetime import datetime, timezone
 
 router = APIRouter(
   prefix="/auth",
@@ -67,10 +68,22 @@ async def login_user(user: OAuth2PasswordRequestForm = Depends(), db: Session = 
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Invalid email or password",
       )
+
+    # If the user is not active, raise an error
+    if not db_user.is_active:
+      raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="User is inactive",
+      )
     
     # Generate access and refresh tokens
     access_token = create_token(subject=db_user, type="access")
     refresh_token = create_token(subject=db_user, type="refresh")
+
+    # Update the last login and seen timestamp
+    db_user.last_login = db_user.last_seen = datetime.now(timezone.utc)
+    db.commit()
+    db.refresh(db_user)
 
     return LoginResponse(
       access_token=access_token.token,
@@ -80,8 +93,10 @@ async def login_user(user: OAuth2PasswordRequestForm = Depends(), db: Session = 
       user=UserProfile.model_validate(db_user).model_dump()
     )
   except HTTPException as e:
+    db.rollback()
     raise e
   except Exception as e:
+    db.rollback()
     print("Error logging in user:", e, flush=True)
     raise HTTPException(
       status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -108,6 +123,7 @@ async def get_current_user_profile(
 
 @router.get("/refresh", response_model=LoginResponse, status_code=status.HTTP_200_OK)
 async def refresh_token(
+  db: Session = Depends(get_db),
   current_user: User = Depends(get_current_user),
 ): 
   """
@@ -117,6 +133,11 @@ async def refresh_token(
     access_token = create_token(subject=current_user, type="access")
     refresh_token = create_token(subject=current_user, type="refresh")
 
+    # Update the last seen timestamp
+    current_user.last_seen = datetime.now(timezone.utc)
+    db.commit()
+    db.refresh(current_user)
+    
     return LoginResponse(
       access_token=access_token.token,
       access_token_expires=access_token.expires,
