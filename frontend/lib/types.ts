@@ -38,6 +38,17 @@ export interface UserDashboardData {
   recent_reservations: Reservation[];
 }
 
+export interface UserReservations {
+  all_reservation_count: number;
+  active_reservation_count: number;
+  past_reservation_count: number;
+  upcoming_reservation_count: number;
+  total_spent: number;
+  upcoming_reservations: Reservation[];
+  active_reservations: Reservation[];
+  past_reservations: Reservation[];
+}
+
 export interface LoginResponse {
   access_token: string;
   access_token_expires: string;

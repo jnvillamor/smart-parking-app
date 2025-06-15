@@ -5,7 +5,7 @@ import { UpdatePasswordSchema, UpdateProfileSchema } from './schema';
 import { getServerSession, Session } from 'next-auth';
 import { revalidatePath } from 'next/cache';
 import { authOptions } from '@/app/api/auth/options';
-import { PaginatedUsers, UserDashboardData, UserSummary } from './types';
+import { PaginatedUsers, UserDashboardData, UserReservations, UserSummary } from './types';
 import { SearchParams } from 'next/dist/server/request/search-params';
 
 export const updateUserProfile = async (data: z.infer<typeof UpdateProfileSchema>, session: Session) => {
@@ -303,6 +303,45 @@ export const getUserDashboardData = async () => {
     return {
       success: false,
       message: 'Failed to fetch dashboard data. Please try again later.'
+    };
+  }
+}
+
+export const getUserReservations = async () => {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return {
+      success: false,
+      message: 'You must be logged in to view your reservations.'
+    };
+  }
+
+  try {
+    const res = await fetch(`${process.env.API_BASE_URL}/users/${session.user.id}/reservations`, {
+      headers: {
+        Authorization: `Bearer ${session.accessToken}`
+      }
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      console.error('Failed to fetch user reservations:', errorData);
+      return {
+        success: false,
+        message: errorData.detail || 'Failed to fetch reservations. Please try again.'
+      };
+    }
+
+    const data = await res.json() as UserReservations;
+    return {
+      success: true,
+      data: data
+    };
+  } catch (error) {
+    console.error('Error fetching user reservations:', error);
+    return {
+      success: false,
+      message: 'Failed to fetch reservations. Please try again later.'
     };
   }
 }
