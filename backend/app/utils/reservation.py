@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import or_, and_
 from datetime import datetime
 from fastapi import HTTPException, status
 
@@ -21,16 +22,34 @@ def is_valid_request(now: datetime, reservation: ReservationCreate, parking_lot:
       detail="Admins cannot create reservations."
     )
   
-  # Check if there is no conflicting reservation
-  if db.query(Reservation).filter(
-    Reservation.user_id == reservation.user_id,
-    Reservation.parking_id == reservation.parking_id,
-    Reservation.start_time < reservation.end_time,
-    Reservation.end_time > reservation.start_time
-  ).first() is not None:
+  # Check if the parking lot is active
+  if not parking_lot.is_active:
     raise HTTPException(
       status_code=status.HTTP_400_BAD_REQUEST,
-      detail="You already have a reservation during this time."
+      detail="Cannot create reservation for an inactive parking lot."
+    )
+  
+  # Check if the reservation overlaps with an existing reservation for the user
+  # This checks if the user already has a reservation on the same parking that overlaps with the new one
+  existing_reservation = db.query(Reservation).filter(
+    Reservation.user_id == current_user.id,
+    Reservation.parking_id == reservation.parking_id,
+    or_(
+      and_(
+        Reservation.start_time < reservation.end_time,
+        Reservation.end_time > reservation.start_time
+      ),
+      and_(
+        Reservation.start_time < reservation.start_time,
+        Reservation.end_time > reservation.start_time
+      )
+    )
+  ).first()
+
+  if existing_reservation:
+    raise HTTPException(
+      status_code=status.HTTP_400_BAD_REQUEST,
+      detail="You already have a reservation that overlaps with this one."
     )
 
   # Check if the parking lot exists
