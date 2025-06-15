@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, computed_field
-from typing import Literal
+from typing import Literal, List
 from datetime import datetime
 
 class UserBase(BaseModel):
@@ -25,6 +25,8 @@ class UpdatePassword(BaseModel):
 class UserResponse(UserBase):
   id: int
   is_active: bool
+  last_login: datetime
+  last_seen: datetime
   role: Literal["user", "admin"] = 'user' 
 
   @computed_field
@@ -36,8 +38,6 @@ class UserResponse(UserBase):
   }
 
 class UserProfile(UserResponse):
-  last_login: datetime
-  last_seen: datetime
   created_at: datetime
   updated_at: datetime
 
@@ -50,3 +50,22 @@ class UserSummary(BaseModel):
   active_users: int
   inactive_users: int
   admin_users: int
+
+class PaginatedUsers(BaseModel):
+  users: List[UserProfile]
+  total: int
+  page: int
+  limit: int
+  total_pages: int
+
+  @computed_field
+  def has_next(self) -> bool:
+    return (self.page * self.limit) < self.total
+  
+  @computed_field
+  def has_previous(self) -> bool:
+    return self.page > 1
+  
+  model_config = {
+    'from_attributes': True,
+  }

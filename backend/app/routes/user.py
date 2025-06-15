@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 
 from app.core.database import get_db
 from app.models import User
-from app.schema import UserBase, UserResponse, UpdatePassword, UserSummary
+from app.schema import UserBase, UserResponse, UpdatePassword, UserSummary, PaginatedUsers
 from app.utils import get_current_user, verify_password, hash_password, get_admin_user
+from typing import Literal
 
 router = APIRouter(
   prefix="/users",
@@ -143,4 +145,52 @@ async def get_user_summary(
     raise HTTPException(
       status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
       detail="An error occurred while fetching the user summary."
+    )
+
+@router.get("/", response_model=PaginatedUsers, status_code=status.HTTP_200_OK)
+async def get_users(
+  page: int = 1,
+  limit: int = 10,
+  q: str = None,
+  status: Literal["active", "inactive"] = None,
+  role: Literal["user", "admin"] = None,
+  db: Session = Depends(get_db),
+  current_user: User = Depends(get_admin_user)
+):
+  """
+  Get a paginated list of users. \n
+  Only accessible by admin users. \n
+  """
+
+  try: 
+    query = db.query(User).filter(
+      or_(
+        User.first_name.ilike(f"%{q}%") if q else True,
+        User.last_name.ilike(f"%{q}%") if q else True,
+        User.email.ilike(f"%{q}%") if q else True
+      ),
+      User.is_active == (status == "active") if status else True,
+      User.role == role if role else True,
+    )
+    total = query.count()
+    total_pages = (total + limit - 1) // limit
+    users = query.offset((page - 1) * limit).limit(limit).all()
+
+    return PaginatedUsers(
+      users=users,
+      total=total,
+      page=page,
+      limit=limit,
+      total_pages=total_pages
+    ).model_dump()
+
+  except HTTPException as e:
+    print(f"Error fetching users: {e.detail}", flush=True)
+    raise e
+  
+  except Exception as e:
+    print(f"Error fetching users: {e}", flush=True)
+    raise HTTPException(
+      status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+      detail="An error occurred while fetching the users."
     )
