@@ -46,7 +46,7 @@ export const getReservationSummary = async () => {
   }
 };
 
-export const getReservations = async (params: SearchParams) => {
+export const getReservations = async (params?: SearchParams) => {
   const session = await getServerSession(authOptions);
 
   if (!session) {
@@ -59,7 +59,7 @@ export const getReservations = async (params: SearchParams) => {
   try {
     const entries: [string, string][] = [];
 
-    Object.entries(params).forEach(([key, value]) => {
+    Object.entries(params ?? {}).forEach(([key, value]) => {
       if (typeof value === 'string') {
         entries.push([key, value]);
       } else if (Array.isArray(value)) {
