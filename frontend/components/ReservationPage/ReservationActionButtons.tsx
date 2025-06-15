@@ -81,7 +81,7 @@ const ReservationActionButtons = ({ reservation }: { reservation: Reservation })
                       Start: {new Date(reservation.start_time).toLocaleString()}
                     </p>
                     <p className='text-sm'>End: {new Date(reservation.end_time).toLocaleString()}</p>
-                    <p className='text-sm'>Duration: {reservation.duration.toFixed(2)} hours</p>
+                    <p className='text-sm'>Duration: {reservation.duration_hours.toFixed(2)} hours</p>
                   </div>
                 </div>
                 <div>

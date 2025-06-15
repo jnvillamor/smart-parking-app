@@ -82,7 +82,7 @@ const ReservationTable = async ({ params }: { params: SearchParams }) => {
                     <p className='text-muted-foreground'>to {new Date(reservation.end_time).toLocaleString()}</p>
                   </div>
                 </TableCell>
-                <TableCell className='p-4 align-middle'>{reservation.duration.toFixed(2)}h</TableCell>
+                <TableCell className='p-4 align-middle'>{reservation.duration_hours.toFixed(2)}h</TableCell>
                 <TableCell className='p-4 align-middle'>${reservation.total_cost.toFixed(2)}</TableCell>
                 <TableCell className='p-4 align-middle'>{getStatusBadge(reservation.status)}</TableCell>
                 <TableCell className='p-4 align-middle'>

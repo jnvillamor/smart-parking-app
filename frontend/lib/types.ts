@@ -59,7 +59,7 @@ export interface Reservation {
   updated_at: string;
   user: UserProfile;
   parking: ParkingLocation;
-  duration: number; // in hours
+  duration_hours: number; // in hours
   status: 'Active' | 'Completed' | 'Cancelled' | 'Upcoming';
   total_cost: number;
 }
