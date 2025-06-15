@@ -9,7 +9,7 @@ export interface UserProfile {
   updated_at: string;
 }
 
-export interface LoginResponse { 
+export interface LoginResponse {
   access_token: string;
   access_token_expires: string;
   refresh_token: string;
@@ -23,7 +23,6 @@ export interface ParkingSummary {
   total_available_slots: number;
   total_reserved_slots: number;
 }
-
 
 export interface ParkingLocation {
   id: number;
@@ -64,7 +63,7 @@ export interface Reservation {
   total_cost: number;
 }
 
-export interface ReservationSummary { 
+export interface ReservationSummary {
   total_reservations: number;
   total_active_reservations: number;
   total_completed_reservations: number;
@@ -79,4 +78,15 @@ export interface PaginatedReservations {
   has_next: boolean;
   has_previous: boolean;
   reservations: Reservation[];
+}
+
+export interface AdminSummary {
+  total_users: number;
+  total_active_parking: number;
+  total_reservations: number;
+  total_revenue: number;
+  new_users_today: number;
+  new_parking_lots_today: number;
+  new_reservations_today: number;
+  new_revenue_today: number;
 }
