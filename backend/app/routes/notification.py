@@ -90,3 +90,34 @@ def mark_all_notifications_as_read(
     db.rollback()
     print(f"Unexpected error: {str(e)}")
     raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+@router.delete("/{notification_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_notification(
+  notification_id: int,
+  db: Session = Depends(get_db),
+  current_user: int = Depends(get_current_user)
+):
+  """
+  Delete a notification for the current user.
+  """
+  try:
+    notif = db.query(Notification).filter(
+      Notification.id == notification_id,
+      Notification.user_id == current_user.id
+    ).first()
+    
+    if not notif:
+      raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found.")
+    
+    db.delete(notif)
+    db.commit()
+    
+    return {"message": "Notification deleted successfully."}
+  except HTTPException as e:
+    db.rollback()
+    print(f"HTTPException: {e.detail}")
+    raise e
+  except Exception as e:
+    db.rollback()
+    print(f"Unexpected error: {str(e)}")
+    raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
