@@ -7,8 +7,9 @@ import { Crown, UserCheck2, Users, UserX2 } from 'lucide-react';
 import { SearchParams } from 'next/dist/server/request/search-params';
 import React from 'react';
 
-const AdminUsersTab = async ({ params }: { params: SearchParams }) => {
-  const searchParams = await params;
+const AdminUsersTab = async ({ searchParams }: { searchParams: Promise<SearchParams> }) => {
+  const params = await searchParams;
+  console.log('Admin Users Tab Params:', params);
   const summary = await getUserSummary();
   if (!summary.success) {
     return <div className='text-red-500'>{summary.message}</div>;
@@ -54,7 +55,7 @@ const AdminUsersTab = async ({ params }: { params: SearchParams }) => {
         <UserFilters />
 
         {/* User Table */}
-        <UserTable params={searchParams} />
+        <UserTable params={params} />
       </div>
     </>
   );

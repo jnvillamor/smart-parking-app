@@ -13,7 +13,7 @@ const UserFilters = () => {
   const searchParmams = useSearchParams();
   const router = useRouter();
   const [query, setQuery] = React.useState<string>(searchParmams.get('q') || '');
-  const [status, setStatus] = React.useState<string>(searchParmams.get('statuts') || 'all');
+  const [status, setStatus] = React.useState<string>(searchParmams.get('status') || 'all');
   const [role, setRole] = React.useState<string>(searchParmams.get('role') || 'all');
 
   useEffect(() => {
@@ -21,7 +21,7 @@ const UserFilters = () => {
       const params = new URLSearchParams(searchParmams.toString());
 
       const currentQuery = searchParmams.get('q') || '';
-      const currentStatus = searchParmams.get('statuts') || 'all';
+      const currentStatus = searchParmams.get('status') || 'all';
       const currentRole = searchParmams.get('role') || 'all';
 
       const filtersChanged = currentQuery !== query || currentStatus !== status || currentRole !== role;
@@ -33,9 +33,9 @@ const UserFilters = () => {
       }
 
       if (status && status !== 'all') {
-        params.set('statuts', status);
+        params.set('status', status);
       } else {
-        params.delete('statuts');
+        params.delete('status');
       }
 
       if (role && role !== 'all') {
