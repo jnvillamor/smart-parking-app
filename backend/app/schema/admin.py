@@ -3,5 +3,9 @@ from pydantic import BaseModel
 class DashboardSummary(BaseModel):
   total_users: int
   total_active_parking: int
-  todays_reservations: int
-  todays_revenue: float
+  total_reservations: int
+  total_revenue: float
+  new_users_today: int
+  new_parking_lots_today: int
+  new_reservations_today: int
+  new_revenue_today: float

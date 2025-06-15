@@ -32,24 +32,50 @@ def get_dashboard_summary(
       ParkingLot.is_active == True
     ).count()
 
-    todays_reservations = db.query(Reservation).filter(
+    total_reservations = db.query(Reservation).filter(
       Reservation.start_time >= datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0),
       Reservation.end_time <= datetime.now(timezone.utc).replace(hour=23, minute=59, second=59, microsecond=999999),
       Reservation.is_cancelled == False
     ).count()
 
     # Calculate today's revenue by summing the total_cost of today's reservations
-    todays_revenue = db.query(func.sum(Reservation.total_cost)).filter(
+    total_revenue = db.query(func.sum(Reservation.total_cost)).filter(
+      Reservation.is_cancelled == False,
+      Reservation.start_time >= datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0),
+      Reservation.end_time <= datetime.now(timezone.utc).replace(hour=23, minute=59, second=59, microsecond=999999)
+    ).scalar() or 0.0
+
+    new_users_today = db.query(User).filter(
+      User.created_at >= datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0),
+      User.role == "user"
+    ).count()
+
+    new_parking_lots_today = db.query(ParkingLot).filter(
+      ParkingLot.created_at >= datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0),
+      ParkingLot.is_active == True
+    ).count()
+
+    new_reservations_today = db.query(Reservation).filter(
       Reservation.start_time >= datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0),
       Reservation.end_time <= datetime.now(timezone.utc).replace(hour=23, minute=59, second=59, microsecond=999999),
       Reservation.is_cancelled == False
+    ).count()
+
+    new_revenue_today = db.query(func.sum(Reservation.total_cost)).filter(
+      Reservation.is_cancelled == False,
+      Reservation.start_time >= datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0),
+      Reservation.end_time <= datetime.now(timezone.utc).replace(hour=23, minute=59, second=59, microsecond=999999)
     ).scalar() or 0.0
   
     return DashboardSummary(
       total_users=total_users,
       total_active_parking=total_active_parking,
-      todays_reservations=todays_reservations,
-      todays_revenue=round(todays_revenue, 2)
+      total_reservations=total_reservations,
+      total_revenue=total_revenue,
+      new_users_today=new_users_today,
+      new_parking_lots_today=new_parking_lots_today,
+      new_reservations_today=new_reservations_today,
+      new_revenue_today=new_revenue_today
     ).model_dump()
     
   except HTTPException as e:
