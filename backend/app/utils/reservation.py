@@ -1,5 +1,5 @@
-from sqlalchemy.orm import Session
-from sqlalchemy import or_, and_
+from sqlalchemy.orm import Session, Query
+from sqlalchemy import or_, and_, case
 from datetime import datetime
 from fastapi import HTTPException, status
 
@@ -75,3 +75,42 @@ def is_valid_request(now: datetime, reservation: ReservationCreate, parking_lot:
   
   return True
   
+def sort_reservations(query: Query, sort_by: str, sort_order: str):
+  """
+  Sort reservations based on the provided sort_by and sort_order.
+  param query: SQLAlchemy session query object.
+  param sort_by: Field to sort by (e.g., 'start_time', 'end_time').
+  param sort_order: Order of sorting ('asc' or 'desc').
+  """
+  if (sort_by == "user"):
+    return query.order_by(
+      getattr(User, "first_name").asc() if sort_order == "asc" else getattr(User, "first_name").desc()
+    )
+  elif (sort_by == "parking"):
+    return query.order_by(
+      getattr(ParkingLot, "name").asc() if sort_order == "asc" else getattr(ParkingLot, "name").desc()
+    )
+  elif (sort_by == "time"):
+    return query.order_by(
+      Reservation.start_time.asc() if sort_order == "asc" else Reservation.start_time.desc()
+    )
+  else:
+    return query.order_by(
+      Reservation.id.asc() if sort_order == "asc" else Reservation.id.desc()
+    )
+
+def sort_by_status(now: datetime, query: Query, sort_order: str = "asc"):
+  """
+  Sort reservations by status.
+  """
+  status_order_case = case(
+    (Reservation.is_cancelled == True, 3),  # Cancelled
+    (Reservation.end_time < now, 2),        # Complete
+    (Reservation.start_time > now, 1),      # Upcoming
+    else_=0  # Active
+  ).label("status_rank")
+
+  return query.order_by(
+    status_order_case.asc() if sort_order == "asc" else status_order_case.desc(),
+    Reservation.start_time.asc() if sort_order == "asc" else Reservation.start_time.desc()
+  ).all()

@@ -7,7 +7,7 @@ from typing import Literal
 from app.models import Reservation, User, ParkingLot
 from app.schema import ReservationCreate, ReservationResponse, PaginatedReservations, ReservationSummary
 from app.core.database import get_db
-from app.utils import get_current_user, is_valid_request, get_admin_user
+from app.utils import get_current_user, is_valid_request, get_admin_user, sort_reservations, get_current_utc_time, sort_by_status
 
 router = APIRouter(
   prefix="/reservations",
@@ -77,7 +77,7 @@ async def get_reservations(
   """
 
   try:
-    now = datetime.now(timezone.utc)
+    now = get_current_utc_time()
     query = db.query(Reservation).join(Reservation.user).join(Reservation.parking).filter(
       or_(
         Reservation.id.cast(String).ilike(f"%{term}%") if term else True,
@@ -100,26 +100,10 @@ async def get_reservations(
 
     total = query.count()
     total_pages = (total + limit - 1) // limit
-    if (sort == "user"):
-      reservations = query.order_by(
-        getattr(User, "first_name").asc() if order == "asc" else getattr(User, "first_name").desc()
-      )
-    elif (sort == "parking"):
-      reservations = query.order_by(
-        getattr(ParkingLot, "name").asc() if order == "asc" else getattr(ParkingLot, "name").desc()
-      )
-    elif (sort == "status"):
-      reservations = query.order_by(
-        Reservation.is_cancelled.asc() if order == "asc" else Reservation.is_cancelled.desc()
-      )
-    elif (sort == "time"):
-      reservations = query.order_by(
-        Reservation.start_time.asc() if order == "asc" else Reservation.start_time.desc()
-      )
+    if (sort == "status"):
+      reservations = sort_by_status(now=now, query=query, sort_order=order)
     else:
-      reservations = query.order_by(
-        Reservation.id.asc() if order == "asc" else Reservation.id.desc()
-      )
+      reservations = sort_reservations(query, sort, order)
 
     return PaginatedReservations(
       reservations=reservations,
