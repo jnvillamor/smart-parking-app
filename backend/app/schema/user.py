@@ -74,6 +74,7 @@ class PaginatedUsers(BaseModel):
 
 class UserDashboardSummary(BaseModel):
   all_active_reservations: int
+  all_upcoming_reservations: int
   all_reservation_current_month: int
   total_spent_current_month: float
   ave_duration_per_reservation: float

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from sqlalchemy import or_, and_, func
-from datetime import datetime, timezone
+from sqlalchemy import or_, func
+from datetime import datetime, timezone, timedelta
 from typing import Literal
 
 from app.core.database import get_db
@@ -297,32 +297,32 @@ async def get_user_dashboard_summary(
       )
 
     reservation_query = db.query(Reservation)
-    
-    # Fetch active and upcoming reservations for the user
-    all_active_reservations = reservation_query.filter(
+    reservation_this_month = reservation_query.filter(
       Reservation.user_id == user_id,
       Reservation.is_cancelled == False,
-      or_(
-        # Active reservations
-        and_(Reservation.start_time <= now, Reservation.end_time >= now),
-        # Upcoming reservations
-        Reservation.start_time > now  
-      )
+      Reservation.start_time >= now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    )
+
+    # Fetch active reservations for the user
+    all_active_reservations = reservation_this_month.filter(
+      Reservation.start_time <= now,
+      Reservation.end_time >= now,
+      Reservation.is_cancelled == False
+    ).count()
+
+    # Fetch all upcoming reservations for the user
+    all_upcoming_reservations = reservation_this_month.filter(
+      Reservation.start_time > now,
+      Reservation.is_cancelled == False
     ).count()
 
     # Fetch all reservations for the current month
-    all_reservation_current_month = reservation_query.filter(
-      Reservation.user_id == user_id,
-      Reservation.is_cancelled == False,
-      Reservation.start_time >= now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    ).count()
+    all_reservation_current_month = reservation_this_month.count()
 
     # Fetch all the total spent by the user in the current month
-    total_spent_current_month = reservation_query.filter(
-      Reservation.user_id == user_id,
-      Reservation.is_cancelled == False,
-      Reservation.start_time >= now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    ).with_entities(func.sum(Reservation.total_cost)).scalar() or 0.0
+    total_spent_current_month = reservation_this_month.with_entities(
+      func.sum(Reservation.total_cost)
+    ).scalar() or 0.0
 
     # Fetch the average duration of reservations for the user in the current month
     ave_duration_per_reservation = db.query(func.avg(Reservation.duration_hours)).filter(
@@ -339,6 +339,7 @@ async def get_user_dashboard_summary(
     
     return UserDashboardSummary(
       all_active_reservations=all_active_reservations,
+      all_upcoming_reservations=all_upcoming_reservations,
       all_reservation_current_month=all_reservation_current_month,
       total_spent_current_month=total_spent_current_month,
       ave_duration_per_reservation=ave_duration_per_reservation,
