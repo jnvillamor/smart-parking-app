@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.models import User
-from app.schema import UserBase, UserResponse, UpdatePassword
-from app.utils import get_current_user, verify_password, hash_password
+from app.schema import UserBase, UserResponse, UpdatePassword, UserSummary
+from app.utils import get_current_user, verify_password, hash_password, get_admin_user
 
 router = APIRouter(
   prefix="/users",
@@ -111,4 +111,36 @@ async def change_password(
     raise HTTPException(
       status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
       detail="An error occurred while changing the password."
+    )
+
+@router.get("/summary", response_model=UserSummary, status_code=status.HTTP_200_OK)
+async def get_user_summary(
+  db: Session = Depends(get_db),
+  current_user: User = Depends(get_admin_user)
+): 
+  """
+  Get a summary of users in the system. \n
+  Only accessible by admin users.
+  """
+  try:
+    total_user = db.query(User).count()
+    active_users = db.query(User).filter(User.is_active == True).count()
+    inactive_users = db.query(User).filter(User.is_active == False).count()
+    admin_users = db.query(User).filter(User.role == 'admin').count()
+
+    return UserSummary(
+      total_users=total_user,
+      active_users=active_users,
+      inactive_users=inactive_users,
+      admin_users=admin_users
+    ).model_dump()
+
+  except HTTPException as e:
+    print(f"Error fetching user summary: {e.detail}", flush=True)
+    raise e
+  except Exception as e:
+    print(f"Error fetching user summary: {e}", flush=True)
+    raise HTTPException(
+      status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+      detail="An error occurred while fetching the user summary."
     )

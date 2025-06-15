@@ -44,3 +44,9 @@ class UserProfile(UserResponse):
   model_config = {
     "from_attributes": True,
   }
+
+class UserSummary(BaseModel):
+  total_users: int
+  active_users: int
+  inactive_users: int
+  admin_users: int
