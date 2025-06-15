@@ -76,39 +76,45 @@ const UserDashboard = async () => {
               {data.recent_reservations.map((reservation) => (
                 <ReservationCard key={reservation.id} reservation={reservation} />
               ))}
+              {data.recent_reservations.length === 0 && (
+                <div className='text-center py-12'>
+                  <Calendar className='h-12 w-12 text-muted-foreground mx-auto mb-4' />
+                  <h3 className='text-lg font-semibold mb-2'>No reservations found</h3>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
 
         {/* Quick Links */}
         <Card>
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-              <CardDescription>Common tasks you might want to perform</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 md:grid-cols-3">
-                <Link href="/locations">
-                  <Button variant="outline" className="w-full h-20 flex flex-col cursor-pointer">
-                    <MapPin className="h-6 w-6 mb-2" />
-                    Find Parking
-                  </Button>
-                </Link>
-                <Link href="/reservations">
-                  <Button variant="outline" className="w-full h-20 flex flex-col cursor-pointer">
-                    <Calendar className="h-6 w-6 mb-2" />
-                    My Reservations
-                  </Button>
-                </Link>
-                <Link href="/profile">
-                  <Button variant="outline" className="w-full h-20 flex flex-col cursor-pointer">
-                    <Car className="h-6 w-6 mb-2" />
-                    Profile Settings
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+            <CardDescription>Common tasks you might want to perform</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className='grid gap-4 md:grid-cols-3'>
+              <Link href='/locations'>
+                <Button variant='outline' className='w-full h-20 flex flex-col cursor-pointer'>
+                  <MapPin className='h-6 w-6 mb-2' />
+                  Find Parking
+                </Button>
+              </Link>
+              <Link href='/reservations'>
+                <Button variant='outline' className='w-full h-20 flex flex-col cursor-pointer'>
+                  <Calendar className='h-6 w-6 mb-2' />
+                  My Reservations
+                </Button>
+              </Link>
+              <Link href='/profile'>
+                <Button variant='outline' className='w-full h-20 flex flex-col cursor-pointer'>
+                  <Car className='h-6 w-6 mb-2' />
+                  Profile Settings
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </>
   );
