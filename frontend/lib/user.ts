@@ -5,7 +5,7 @@ import { UpdatePasswordSchema, UpdateProfileSchema } from './schema';
 import { getServerSession, Session } from 'next-auth';
 import { revalidatePath } from 'next/cache';
 import { authOptions } from '@/app/api/auth/options';
-import { PaginatedUsers, UserSummary } from './types';
+import { PaginatedUsers, UserDashboardData, UserSummary } from './types';
 import { SearchParams } from 'next/dist/server/request/search-params';
 
 export const updateUserProfile = async (data: z.infer<typeof UpdateProfileSchema>, session: Session) => {
@@ -264,6 +264,45 @@ export const activateUser = async (userId: number) => {
     return {
       success: false,
       message: 'Failed to activate user. Please try again later.'
+    };
+  }
+}
+
+export const getUserDashboardData = async () => {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return {
+      success: false,
+      message: 'You must be logged in to view your dashboard data.'
+    };
+  }
+
+  try {
+    const res = await fetch(`${process.env.API_BASE_URL}/users/${session.user.id}/dashboard`, {
+      headers: {
+        Authorization: `Bearer ${session.accessToken}`
+      }
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      console.error('Failed to fetch user dashboard data:', errorData);
+      return {
+        success: false,
+        message: errorData.detail || 'Failed to fetch dashboard data. Please try again.'
+      };
+    }
+
+    const data = await res.json() as UserDashboardData;
+    return {
+      success: true,
+      data: data
+    };
+  } catch (error) {
+    console.error('Error fetching user dashboard data:', error);
+    return {
+      success: false,
+      message: 'Failed to fetch dashboard data. Please try again later.'
     };
   }
 }

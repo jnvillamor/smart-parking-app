@@ -5,6 +5,7 @@ type SummaryCardProps = {
   title: string;
   value: number | string;
   icon: React.ReactNode;
+  subTitle?: string;
 };
 
 const SummaryCard = (props: SummaryCardProps) => {
@@ -16,6 +17,7 @@ const SummaryCard = (props: SummaryCardProps) => {
       </CardHeader>
       <CardContent>
         <div className='text-2xl font-bold'>{props.value}</div>
+        {props.subTitle && <div className='text-sm text-muted-foreground'>{props.subTitle}</div>}
       </CardContent>
     </Card>
   );

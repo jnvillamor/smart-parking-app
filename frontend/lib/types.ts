@@ -29,6 +29,15 @@ export interface UserSummary {
   admin_users: number;
 }
 
+export interface UserDashboardData {
+  all_active_reservations: number;
+  all_upcoming_reservations: number;
+  all_reservation_current_month: number;
+  total_spent_current_month: number;
+  ave_duration_per_reservation: number;
+  recent_reservations: Reservation[];
+}
+
 export interface LoginResponse {
   access_token: string;
   access_token_expires: string;
