@@ -1,7 +1,9 @@
 from pydantic import BaseModel, EmailStr, computed_field
-from typing import Literal, List
+from typing import Literal, List, TYPE_CHECKING
 from datetime import datetime
 
+if TYPE_CHECKING:
+  from app.schema.reservation import ReservationResponse
 class UserBase(BaseModel):
   email: EmailStr
   first_name: str
@@ -45,7 +47,7 @@ class UserProfile(UserResponse):
     "from_attributes": True,
   }
 
-class UserSummary(BaseModel):
+class AdminUserSummary(BaseModel):
   total_users: int
   active_users: int
   inactive_users: int
@@ -69,3 +71,10 @@ class PaginatedUsers(BaseModel):
   model_config = {
     'from_attributes': True,
   }
+
+class UserDashboardSummary(BaseModel):
+  all_active_reservations: int
+  all_reservation_current_month: int
+  total_spent_current_month: float
+  ave_duration_per_reservation: float
+  recent_reservations: List["ReservationResponse"]

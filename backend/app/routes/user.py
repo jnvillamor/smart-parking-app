@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from sqlalchemy import or_
+from sqlalchemy import or_, and_, func
+from datetime import datetime, timezone
+from typing import Literal
 
 from app.core.database import get_db
-from app.models import User
-from app.schema import UserBase, UserResponse, UpdatePassword, UserSummary, PaginatedUsers
+from app.models import User, Reservation
+from app.schema import UserBase, UserResponse, UpdatePassword, AdminUserSummary, PaginatedUsers, UserDashboardSummary
 from app.utils import get_current_user, verify_password, hash_password, get_admin_user
-from typing import Literal
 
 router = APIRouter(
   prefix="/users",
@@ -115,7 +116,7 @@ async def change_password(
       detail="An error occurred while changing the password."
     )
 
-@router.get("/summary", response_model=UserSummary, status_code=status.HTTP_200_OK)
+@router.get("/summary", response_model=AdminUserSummary, status_code=status.HTTP_200_OK)
 async def get_user_summary(
   db: Session = Depends(get_db),
   current_user: User = Depends(get_admin_user)
@@ -130,7 +131,7 @@ async def get_user_summary(
     inactive_users = db.query(User).filter(User.is_active == False).count()
     admin_users = db.query(User).filter(User.role == 'admin').count()
 
-    return UserSummary(
+    return AdminUserSummary(
       total_users=total_user,
       active_users=active_users,
       inactive_users=inactive_users,
@@ -274,4 +275,82 @@ async def activate_user(
     raise HTTPException(
       status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
       detail="An error occurred while activating the user."
+    )
+
+@router.get("/{user_id}/dashboard", response_model=UserDashboardSummary, status_code=status.HTTP_200_OK)
+async def get_user_dashboard_summary(
+  user_id: int,
+  db: Session = Depends(get_db),
+  current_user: User = Depends(get_current_user)
+):
+  """
+  Get the dashboard summary for a user. \n
+  Only accessible by the user themselves or an admin user. \n
+  param user_id: ID of the user whose dashboard summary is to be fetched.
+  """
+  try:
+    now = datetime.now(timezone.utc)
+    if current_user.id != user_id and current_user.role != 'admin':
+      raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="You do not have permission to view this user's dashboard."
+      )
+
+    reservation_query = db.query(Reservation)
+    
+    # Fetch active and upcoming reservations for the user
+    all_active_reservations = reservation_query.filter(
+      Reservation.user_id == user_id,
+      Reservation.is_cancelled == False,
+      or_(
+        # Active reservations
+        and_(Reservation.start_time <= now, Reservation.end_time >= now),
+        # Upcoming reservations
+        Reservation.start_time > now  
+      )
+    ).count()
+
+    # Fetch all reservations for the current month
+    all_reservation_current_month = reservation_query.filter(
+      Reservation.user_id == user_id,
+      Reservation.is_cancelled == False,
+      Reservation.start_time >= now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    ).count()
+
+    # Fetch all the total spent by the user in the current month
+    total_spent_current_month = reservation_query.filter(
+      Reservation.user_id == user_id,
+      Reservation.is_cancelled == False,
+      Reservation.start_time >= now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    ).with_entities(func.sum(Reservation.total_cost)).scalar() or 0.0
+
+    # Fetch the average duration of reservations for the user in the current month
+    ave_duration_per_reservation = db.query(func.avg(Reservation.duration_hours)).filter(
+      Reservation.user_id == user_id,
+      Reservation.is_cancelled == False,
+      Reservation.start_time >= now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    ).scalar() or 0.0
+
+    # Fetch the recent reservations for the user
+    recent_reservations = reservation_query.filter(
+      Reservation.user_id == user_id,
+      Reservation.is_cancelled == False
+    ).order_by(Reservation.created_at.desc()).limit(5).all()
+    
+    return UserDashboardSummary(
+      all_active_reservations=all_active_reservations,
+      all_reservation_current_month=all_reservation_current_month,
+      total_spent_current_month=total_spent_current_month,
+      ave_duration_per_reservation=ave_duration_per_reservation,
+      recent_reservations=recent_reservations
+    ).model_dump()
+  except HTTPException as e:
+    print(f"Error fetching dashboard summary for user {user_id}: {e.detail}", flush=True)
+    raise e
+  
+  except Exception as e:
+    print(f"Error fetching dashboard summary for user {user_id}: {e}", flush=True)
+    raise HTTPException(
+      status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+      detail="An error occurred while fetching the user's dashboard summary."
     )
