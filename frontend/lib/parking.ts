@@ -6,6 +6,7 @@ import { getServerSession } from 'next-auth';
 import { revalidatePath } from 'next/cache';
 import { PaginatedParkingLocations, ParkingSummary } from './types';
 import { authOptions } from '@/app/api/auth/options';
+import { SearchParams } from 'next/dist/server/request/search-params';
 
 export const createParkingLocation = async (data: z.infer<typeof AddLocationSchema>) => {
   const session = await getServerSession(authOptions);
@@ -47,12 +48,7 @@ export const createParkingLocation = async (data: z.infer<typeof AddLocationSche
   }
 };
 
-export const getParkingLocations = async (
-  page: number = 1,
-  limit: number = 10,
-  name?: string,
-  status: string = 'all',
-) => {
+export const getParkingLocations = async (params?: SearchParams) => {
   const session = await getServerSession(authOptions);
   if (!session) {
     return {
@@ -61,15 +57,20 @@ export const getParkingLocations = async (
     };
   }
 
-  const params = new URLSearchParams()
-  if (name) params.set('name', name);
-  params.set('status', status);
-  params.set('page', page.toString());
-  params.set('limit', limit.toString());
-
 
   try {
-    const res = await fetch(`${process.env.API_BASE_URL}/parking/lots?${params.toString()}`, {
+    const entries: [string, string][] = [];
+
+    Object.entries(params ?? {}).forEach(([key, value]) => {
+      if (typeof value === 'string') {
+        entries.push([key, value]);
+      } else if (Array.isArray(value)) {
+        value.forEach((v) => entries.push([key, v]));
+      }
+    });
+    const queryString = new URLSearchParams(entries).toString();
+
+    const res = await fetch(`${process.env.API_BASE_URL}/parking/lots?${queryString}`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${session.accessToken}`
@@ -84,7 +85,7 @@ export const getParkingLocations = async (
       };
     }
 
-    const data = await res.json() as PaginatedParkingLocations;
+    const data = (await res.json()) as PaginatedParkingLocations;
     return {
       success: true,
       data: data,
@@ -97,7 +98,7 @@ export const getParkingLocations = async (
       message: error instanceof Error ? error.message : 'An error occurred while fetching parking locations.'
     };
   }
-}
+};
 
 export const updateParkingLocation = async (id: number, data: z.infer<typeof AddLocationSchema>) => {
   const session = await getServerSession(authOptions);
@@ -138,8 +139,7 @@ export const updateParkingLocation = async (id: number, data: z.infer<typeof Add
       message: error instanceof Error ? error.message : 'An error occurred while updating the parking location.'
     };
   }
-}
-
+};
 
 export const deleteParkingLocation = async (id: number) => {
   const seession = await getServerSession(authOptions);
@@ -179,7 +179,7 @@ export const deleteParkingLocation = async (id: number) => {
       message: error instanceof Error ? error.message : 'An error occurred while deleting the parking location.'
     };
   }
-}
+};
 
 export const getParkingSummary = async () => {
   const session = await getServerSession(authOptions);
@@ -196,7 +196,7 @@ export const getParkingSummary = async () => {
       headers: {
         Authorization: `Bearer ${session.accessToken}`
       }
-    })
+    });
 
     if (!res.ok) {
       const errorData = await res.json();
@@ -206,12 +206,12 @@ export const getParkingSummary = async () => {
       };
     }
 
-    const data = await res.json() as ParkingSummary;
+    const data = (await res.json()) as ParkingSummary;
     return {
       success: true,
       data: data,
       message: 'Parking summary fetched successfully.'
-    }
+    };
   } catch (error) {
     console.error('Error fetching parking summary:', error);
     return {
@@ -236,8 +236,8 @@ export const toggleParkingLocationStatus = async (id: number) => {
       headers: {
         Authorization: `Bearer ${session.accessToken}`
       }
-    })
-    console.log(res)
+    });
+    console.log(res);
 
     if (!res.ok) {
       const errorData = await res.json();
@@ -252,13 +252,11 @@ export const toggleParkingLocationStatus = async (id: number) => {
       success: true,
       message: 'Parking location status updated successfully.'
     };
-    
   } catch (error) {
     console.error('Error updating parking location status:', error);
     return {
       success: false,
       message: error instanceof Error ? error.message : 'An error occurred while toggling parking location status.'
-    }
-    
+    };
   }
-}
+};

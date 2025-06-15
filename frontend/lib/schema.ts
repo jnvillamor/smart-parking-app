@@ -78,24 +78,44 @@ export const UpdatePasswordSchema = z
   });
 
 export const AddLocationSchema = z.object({
-  name: z.string()
+  name: z
+    .string()
     .min(2, { message: 'Location name must be at least 2 characters long' })
     .max(100, { message: 'Location name cannot exceed 100 characters' })
     .nonempty({ message: 'Location name is required' }),
-  
-  location: z.string()
+
+  location: z
+    .string()
     .min(2, { message: 'Location must be at least 2 characters long' })
     .max(200, { message: 'Location cannot exceed 200 characters' })
     .nonempty({ message: 'Location is required' }),
-  
-  total_slots: z.number()
+
+  total_slots: z
+    .number()
     .min(2, { message: 'Total slots must be at least 2' })
     .max(1000, { message: 'Total slots cannot exceed 1000' })
     .int({ message: 'Total slots must be an integer' })
     .nonnegative({ message: 'Total slots cannot be negative' }),
-  
-  rate: z.number()
+
+  rate: z
+    .number()
     .min(2, { message: 'Rate must be at least 2' })
     .max(1000, { message: 'Rate cannot exceed 1000' })
-    .nonnegative({ message: 'Rate cannot be negative' })  
-})
+    .nonnegative({ message: 'Rate cannot be negative' })
+});
+
+export const AddReservationSchema = z
+  .object({
+    parking_id: z.number().int({ message: 'Parking ID must be an integer' }).nonnegative({ message: 'Parking ID cannot be negative' }),
+    user_id: z.number().int({ message: 'User ID must be an integer' }).nonnegative({ message: 'User ID cannot be negative' }),
+    start_time: z.coerce.date({ message: 'Start time is required' }).refine((date) => date > new Date(), {
+      message: 'Start time must be in the future'
+    }),
+    end_time: z.coerce.date({ message: 'End time is required' }).refine((date) => date > new Date(), {
+      message: 'End time must be in the future'
+    })
+  })
+  .refine((data) => data.start_time < data.end_time, {
+    message: 'End time must be after start time',
+    path: ['end_time']
+  });

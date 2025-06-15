@@ -5,6 +5,8 @@ import { PaginatedReservations, ReservationSummary } from './types';
 import { SearchParams } from 'next/dist/server/request/search-params';
 import { revalidatePath } from 'next/cache';
 import { authOptions } from '@/app/api/auth/options';
+import { z } from 'zod';
+import { AddReservationSchema } from './schema';
 
 export const getReservationSummary = async () => {
   const session = await getServerSession(authOptions);
@@ -131,6 +133,48 @@ export const cancelReservation = async (reservationID: number) => {
     };
   } catch (error) {
     console.error('Error cancelling reservation:', error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'An unexpected error occurred'
+    };
+  }
+}
+
+export const createReservation = async (data: z.infer<typeof AddReservationSchema>) => {
+  const session = await getServerSession(authOptions);
+
+  if (!session) {
+    return {
+      success: false,
+      message: 'User not authenticated'
+    };
+  }
+
+  try {
+    const res = await fetch(`${process.env.API_BASE_URL}/reservations`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.accessToken}`
+      },
+      body: JSON.stringify(data)
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      return {
+        success: false,
+        message: errorData.detail || 'Failed to create reservation'
+      };
+    }
+
+    revalidatePath('/admin/reservations');
+    return {
+      success: true,
+      message: 'Reservation created successfully'
+    };
+  } catch (error) {
+    console.error('Error creating reservation:', error);
     return {
       success: false,
       message: error instanceof Error ? error.message : 'An unexpected error occurred'

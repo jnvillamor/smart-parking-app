@@ -5,7 +5,7 @@ import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Button } from './ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 type PaginationProps = {
   type: 'locations' | 'users' | 'reservations';
@@ -26,6 +26,7 @@ const Pagination = ({ type, data }: PaginationProps) => {
   const [itemsPerPage, setItemsPerPage] = React.useState(data.limit);
   const [currentPage, setCurrentPage] = React.useState(data.page);
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const router = useRouter();
 
   React.useEffect(() => {
@@ -34,11 +35,11 @@ const Pagination = ({ type, data }: PaginationProps) => {
       params.set('page', currentPage.toString());
       params.set('limit', itemsPerPage.toString());
 
-      router.push(`/admin/${type}?${params.toString()}`);
+      router.push(`${pathname}?${params.toString()}`);
     };
 
     updateSearchParams();
-  }, [itemsPerPage, currentPage, searchParams, router, type]);
+  }, [itemsPerPage, currentPage, searchParams, router, type, pathname]);
 
   const getMinPage = () => {
     switch (type) {
