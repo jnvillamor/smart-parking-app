@@ -79,3 +79,11 @@ class UserDashboardSummary(BaseModel):
   total_spent_current_month: float
   ave_duration_per_reservation: float
   recent_reservations: List["ReservationResponse"]
+
+class UserReservationSummary(BaseModel):
+  all_reservation_count: int
+  active_reservation_count: int
+  upcoming_reservation_count: int
+  total_spent: float
+  upcoming_reservations: List["ReservationResponse"]
+  active_reservations: List["ReservationResponse"]

@@ -6,7 +6,7 @@ from typing import Literal
 
 from app.core.database import get_db
 from app.models import User, Reservation
-from app.schema import UserBase, UserResponse, UpdatePassword, AdminUserSummary, PaginatedUsers, UserDashboardSummary
+from app.schema import UserBase, UserResponse, UpdatePassword, AdminUserSummary, PaginatedUsers, UserDashboardSummary, UserReservationSummary
 from app.utils import get_current_user, verify_password, hash_password, get_admin_user
 
 router = APIRouter(
@@ -354,4 +354,68 @@ async def get_user_dashboard_summary(
     raise HTTPException(
       status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
       detail="An error occurred while fetching the user's dashboard summary."
+    )
+
+@router.get("/{user_id}/reservations", response_model=UserReservationSummary, status_code=status.HTTP_200_OK)
+async def get_user_reservation_summary(
+  user_id: int,
+  db: Session = Depends(get_db),
+  current_user: User = Depends(get_current_user)
+):
+  """
+  Get the reservation summary for a user. \n
+  Only accessible by the user themselves.
+  """
+
+  try:
+    if current_user.id != user_id:
+      raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="You do not have permission to view this user's reservation summary."
+      )
+    
+    now = datetime.now(timezone.utc)
+    reservation_query = db.query(Reservation).filter(
+      Reservation.user_id == user_id,
+      Reservation.is_cancelled == False
+    )
+
+    # Fetch all reservations for the user
+    all_reservation_count = reservation_query.count()
+
+    # Fetch active reservations for the user
+    active_reservations = reservation_query.filter(
+      Reservation.start_time <= now,
+      Reservation.end_time >= now
+    )
+    active_reservation_count = active_reservations.count()
+
+    # Fetch upcoming reservations for the user
+    upcoming_reservations = reservation_query.filter(
+      Reservation.start_time > now
+    )
+    upcoming_reservation_count = upcoming_reservations.count()
+
+    # Fetch the total spent by the user on reservations
+    total_spent = reservation_query.with_entities(
+      func.sum(Reservation.total_cost)
+    ).scalar() or 0.0
+
+    return UserReservationSummary(
+      all_reservation_count=all_reservation_count,
+      active_reservation_count=active_reservation_count,
+      upcoming_reservation_count=upcoming_reservation_count,
+      active_reservations=active_reservations.all(),
+      upcoming_reservations=upcoming_reservations.all(),
+      total_spent=total_spent
+    ).model_dump()
+
+  except HTTPException as e:
+    print(f"Error fetching reservation summary for user {user_id}: {e.detail}", flush=True)
+    raise e
+  except Exception as e:
+    print(f"Error fetching reservation summary for user {user_id}: {e}", flush=True)
+    raise HTTPException(
+      status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+      detail="An error occurred while fetching the user's reservation summary."
     )
