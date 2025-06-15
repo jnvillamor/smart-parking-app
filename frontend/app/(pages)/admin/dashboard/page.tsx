@@ -2,7 +2,7 @@ import SummaryCard from '@/components/SummaryCard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { getSummaryData } from '@/lib/admin';
-import { getStatusBadge } from '@/lib/helper';
+import { calculateTimeDifference, getStatusBadge } from '@/lib/helper';
 import { getReservations } from '@/lib/reservation';
 import { BadgeDollarSign, Calendar, DollarSign, MapPin, Users } from 'lucide-react';
 import React from 'react';
@@ -15,21 +15,6 @@ const AdminDashboard = async () => {
     return <div className='text-red-500'>{summary.message}</div>;
   }
 
-  const calculateTimeDifference = (createdAt: string) => {
-    const now = new Date();
-    const createdDate = new Date(createdAt);
-    const diffInSeconds = Math.floor((now.getTime() - createdDate.getTime()) / 1000);
-
-    if (diffInSeconds < 60) {
-      return `${diffInSeconds} seconds ago`;
-    } else if (diffInSeconds < 3600) {
-      return `${Math.floor(diffInSeconds / 60)} minutes ago`;
-    } else if (diffInSeconds < 86400) {
-      return `${Math.floor(diffInSeconds / 3600)} hours ago`;
-    } else {
-      return `${Math.floor(diffInSeconds / 86400)} days ago`;
-    }
-  }
 
   const card_summary = [
     {
@@ -69,9 +54,9 @@ const AdminDashboard = async () => {
           ))}
         </div>
         <div className='grid gap-4 grid-cols-2 md:grid-cols-4 lg:grid-cols-7'>
-          <Card className='md:grid-cols-2 lg:col-span-4'>
+          <Card className='col-span-2 lg:col-span-4'>
             <CardHeader>
-              <CardTitle className='text-2xl font-medium'>Recent Reservations</CardTitle>
+              <CardTitle className='md:text-2xl font-medium'>Recent Reservations</CardTitle>
               <CardDescription>Latest parking reservations made by users</CardDescription>
             </CardHeader>
             <CardContent>
@@ -93,9 +78,9 @@ const AdminDashboard = async () => {
               </div>
             </CardContent>
           </Card>
-          <Card className='md:grid-cols-2 lg:col-span-3'>
+          <Card className='col-span-2 lg:col-span-3'>
             <CardHeader>
-              <CardTitle className='text-2xl font-medium'>Quick Stats</CardTitle>
+              <CardTitle className='md:text-2xl font-medium'>Quick Stats</CardTitle>
               <CardDescription>Key metrics at a glance</CardDescription>
             </CardHeader>
             <CardContent className='space-y-4'>
