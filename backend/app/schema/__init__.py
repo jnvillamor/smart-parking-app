@@ -3,6 +3,7 @@ from .auth import LoginResponse, TokenData, TokenPayload
 from .parking import ParkingBase, ParkingCreate, ParkingResponse, PaginatedParkingResponse, ParkingSummaryResponse, ParkingResponseWithoutReservations
 from .reservation import ReservationUser, ReservationCreate, ReservationResponse, PaginatedReservations, ReservationSummary
 from .admin import DashboardSummary 
+from .notification import NotificationBase
 
 ReservationResponse.model_rebuild()
 UserDashboardSummary.model_rebuild()

@@ -3,6 +3,7 @@ from .parking import router as parking_router
 from .reservation import router as reservation_router
 from .user import router as user_router
 from .admin import router as admin_router
+from .notification import router as notification_router
 from fastapi import FastAPI
 
 def register_routes(app: FastAPI):
@@ -14,5 +15,6 @@ def register_routes(app: FastAPI):
   app.include_router(reservation_router)
   app.include_router(user_router)
   app.include_router(admin_router)
+  app.include_router(notification_router)
   
   print("Routes registered successfully", flush=True)  # Debugging statement

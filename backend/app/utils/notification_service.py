@@ -24,9 +24,10 @@ def check_reservation_expirations():
       notif = Notification(
         user_id = reservation.user_id,
         message = f"Your reservation for {reservation.parking.name} has expired.",
-        created_at = now,
-        is_read = False
+        created_at = now 
       )
+
+      reservation.notified = True
       db.add(notif)
 
     db.commit()
