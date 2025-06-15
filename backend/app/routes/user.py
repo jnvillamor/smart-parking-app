@@ -7,7 +7,7 @@ from typing import Literal
 from app.core.database import get_db
 from app.models import User, Reservation
 from app.schema import UserBase, UserResponse, UpdatePassword, AdminUserSummary, PaginatedUsers, UserDashboardSummary, UserReservationSummary
-from app.utils import get_current_user, verify_password, hash_password, get_admin_user
+from app.utils import get_current_user, verify_password, hash_password, get_admin_user, get_current_utc_time 
 
 router = APIRouter(
   prefix="/users",
@@ -374,7 +374,8 @@ async def get_user_reservation_summary(
         detail="You do not have permission to view this user's reservation summary."
       )
     
-    now = datetime.now(timezone.utc)
+    now = get_current_utc_time()
+
     reservation_query = db.query(Reservation).filter(
       Reservation.user_id == user_id,
       Reservation.is_cancelled == False
@@ -396,6 +397,14 @@ async def get_user_reservation_summary(
     )
     upcoming_reservation_count = upcoming_reservations.count()
 
+    # Fetch the past reservations for the user
+    past_reservations = db.query(Reservation).filter(
+      Reservation.user_id == user_id,
+      Reservation.start_time < now,
+      Reservation.end_time < now,
+    )
+    past_reservation_count = past_reservations.count()
+
     # Fetch the total spent by the user on reservations
     total_spent = reservation_query.with_entities(
       func.sum(Reservation.total_cost)
@@ -407,6 +416,8 @@ async def get_user_reservation_summary(
       upcoming_reservation_count=upcoming_reservation_count,
       active_reservations=active_reservations.all(),
       upcoming_reservations=upcoming_reservations.all(),
+      past_reservation_count=past_reservation_count,
+      past_reservations=past_reservations.all(),
       total_spent=total_spent
     ).model_dump()
 
