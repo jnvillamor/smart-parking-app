@@ -17,6 +17,7 @@ async def lifespan(app: FastAPI):
 
     # Start background job
     scheduler.add_job(check_reservation_expirations, 'interval', minutes=1, id='check_reservation_expirations')
+    scheduler.start()
     yield
 
     # Shutdown background job

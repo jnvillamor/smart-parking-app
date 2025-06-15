@@ -6,25 +6,29 @@ from app.core.database import get_db
 from app.utils import get_current_utc_time
 
 def check_reservation_expirations():
+  """
+  Check for expired reservations and create notifications for users.
+  This function runs periodically to ensure that users are notified when their reservations expire.
+  """
   db_gen = get_db
   db: Session = next(db_gen())
 
   now = get_current_utc_time()
   try:
     reservations = db.query(Reservation).filter(
-      Reservation.expiration_time <= now,
-      Reservation.status == 'active'
+      Reservation.end_time <= now,
+      Reservation.is_cancelled == False
     ).all()
 
     for reservation in reservations:
       notif = Notification(
         user_id = reservation.user_id,
-        message = f"Your reservation for {reservation.item_name} has expired.",
+        message = f"Your reservation for {reservation.parking.name} has expired.",
         created_at = now,
         is_read = False
       )
-    
-    db.add_all(reservations)
+      db.add(notif)
+
     db.commit()
 
     print(f"Checked {len(reservations)} reservations for expiration.", flush=True)
