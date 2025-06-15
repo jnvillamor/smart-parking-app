@@ -19,24 +19,30 @@ def init_admin():
   admin_name = "Admin"
   admin_surname = "User"
   admin_role = "admin"
+  try:
+    admin_exists = db.query(User).filter(User.email == admin_email).first()
 
-  admin_exists = db.query(User).filter(User.email == admin_email).first()
+    if admin_exists:
+      print(f"Admin user with email {admin_email} already exists.")
+      return
 
-  if admin_exists:
-    print(f"Admin user with email {admin_email} already exists.")
-    return
-  
-  print(f"Creating admin user with email: {admin_email}", flush=True)
-  admin_user = User(
-    email=admin_email,
-    first_name=admin_name,
-    last_name=admin_surname,
-    password=hash_password(admin_password),
-    role=admin_role
-  )
+    print(f"Creating admin user with email: {admin_email}", flush=True)
+    admin_user = User(
+      email=admin_email,
+      first_name=admin_name,
+      last_name=admin_surname,
+      password=hash_password(admin_password),
+      role=admin_role
+    )
 
-  db.add(admin_user)
-  db.commit()
-  db.refresh(admin_user)
-  print(f"Admin created successfully:", admin_user, flush=True)
-  return admin_user
+    db.add(admin_user)
+    db.commit()
+    db.refresh(admin_user)
+    db.close()
+    print(f"Admin created successfully:", admin_user, flush=True)
+    return admin_user
+  except Exception as e:
+    db.rollback()
+    db.close()
+    print(f"Error creating admin user: {e}", flush=True)
+    raise e

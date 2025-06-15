@@ -10,7 +10,6 @@ def check_reservation_expirations():
   db: Session = next(db_gen())
 
   now = get_current_utc_time()
-
   try:
     reservations = db.query(Reservation).filter(
       Reservation.expiration_time <= now,
@@ -28,9 +27,9 @@ def check_reservation_expirations():
     db.add_all(reservations)
     db.commit()
 
-    print(f"Checked {len(reservations)} reservations for expiration.")
+    print(f"Checked {len(reservations)} reservations for expiration.", flush=True)
   except Exception as e:
-    print(f"Error fetching reservations: {e}")
+    print(f"Error fetching reservations: {e}", flush=True)
     db.rollback()
   finally:
     db.close()
