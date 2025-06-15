@@ -22,8 +22,6 @@ def get_notifications(
   """
   try:
     notifs = db.query(Notification).filter(Notification.user_id == current_user.id).all()
-    if not notifs:
-      raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No notifications found for the user.")
     
     return [
       NotificationBase.model_validate(notif).model_dump() for notif in notifs
@@ -58,6 +56,32 @@ def mark_notification_as_read(
     db.refresh(notif)
     
     return NotificationBase.model_validate(notif).model_dump()
+  except HTTPException as e:
+    db.rollback()
+    print(f"HTTPException: {e.detail}")
+    raise e
+  except Exception as e:
+    db.rollback()
+    print(f"Unexpected error: {str(e)}")
+    raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+@router.patch("/{notification_id}/mark-all-read", status_code=status.HTTP_200_OK)
+def mark_all_notifications_as_read(
+  db: Session = Depends(get_db),
+  current_user: int = Depends(get_current_user)
+):
+  """
+  Mark all notifications as read for the current user.
+  """
+  try:
+    notifs = db.query(Notification).filter(Notification.user_id == current_user.id, Notification.is_read == False).all()
+    
+    for notif in notifs:
+      notif.is_read = True
+    
+    db.commit()
+    
+    return {"message": "All notifications marked as read."}
   except HTTPException as e:
     db.rollback()
     print(f"HTTPException: {e.detail}")
