@@ -17,7 +17,8 @@ def check_reservation_expirations():
   try:
     reservations = db.query(Reservation).filter(
       Reservation.end_time <= now,
-      Reservation.is_cancelled == False
+      Reservation.is_cancelled == False,
+      Reservation.notified == False
     ).all()
 
     for reservation in reservations:
