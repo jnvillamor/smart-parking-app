@@ -24,6 +24,7 @@ class UpdatePassword(BaseModel):
 
 class UserResponse(UserBase):
   id: int
+  is_active: bool
   role: Literal["user", "admin"] = 'user' 
 
   @computed_field

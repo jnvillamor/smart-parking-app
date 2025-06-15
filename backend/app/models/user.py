@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, func
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, func
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 
@@ -11,6 +11,7 @@ class User(Base):
   last_name = Column(String(50), nullable=False)
   password = Column(String(250), nullable=False)
   role = Column(String(20), default="user", nullable=False)
+  is_active = Column(Boolean, default=True, nullable=False)
   created_at = Column(DateTime(timezone=True), default=func.now(), nullable=False)
   updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=False)
 
