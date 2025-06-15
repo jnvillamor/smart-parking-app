@@ -93,7 +93,8 @@ async def get_reservations(
         Reservation.start_time > now
       ) if status == "upcoming" else True,
       and_(
-        Reservation.end_time < now
+        Reservation.end_time < now,
+        Reservation.is_cancelled == False
       ) if status == "completed" else True,
     )
 

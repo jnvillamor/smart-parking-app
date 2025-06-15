@@ -65,6 +65,7 @@ const ReservationFilters = () => {
                 <SelectItem value='active'>Active Reservations</SelectItem>
                 <SelectItem value='upcoming'>Upcoming Reservations</SelectItem>
                 <SelectItem value='completed'>Completed Reservations</SelectItem>
+                <SelectItem value='cancelled'>Cancelled Reservations</SelectItem>
               </SelectContent>
             </Select>
           </div>
