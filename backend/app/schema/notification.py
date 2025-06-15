@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
 from .user import UserResponse 
+from typing import List
 
 class NotificationBase(BaseModel):
   id: int
@@ -13,3 +14,10 @@ class NotificationBase(BaseModel):
   model_config = {
     "from_attributes": True,
   }
+
+class NotificationResponse(BaseModel):
+  read_notifications: List[NotificationBase]
+  unread_notifications: List[NotificationBase]
+  all_notifications_count: int
+  read_notifications_count: int
+  unread_notifications_count: int

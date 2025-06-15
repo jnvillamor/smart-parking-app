@@ -4,7 +4,7 @@ from typing import List
 
 from app.core.database import get_db
 from app.models import Notification
-from app.schema import NotificationBase
+from app.schema import NotificationBase, NotificationResponse
 from app.utils import get_current_user
 
 router = APIRouter(
@@ -12,8 +12,9 @@ router = APIRouter(
   tags=["notifications"],
 )
 
-@router.get("/", response_model=List[NotificationBase], status_code=status.HTTP_200_OK)
+@router.get("/{user_id}", response_model=NotificationResponse, status_code=status.HTTP_200_OK)
 def get_notifications(
+  user_id: int,
   db: Session = Depends(get_db),
   current_user: int = Depends(get_current_user)
 ):
@@ -21,11 +22,28 @@ def get_notifications(
   Retrieve all notifications for the current user.
   """
   try:
-    notifs = db.query(Notification).filter(Notification.user_id == current_user.id).all()
+    if current_user.id != user_id:
+      raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You do not have permission to access these notifications.")
     
-    return [
-      NotificationBase.model_validate(notif).model_dump() for notif in notifs
-    ]
+    all_notifications = db.query(Notification).filter(Notification.user_id == user_id)
+    all_notifications_count = all_notifications.count()
+
+    # Read notifs
+    read_notifications = all_notifications.filter(Notification.is_read == True).all()
+    read_notifications_count = len(read_notifications)
+
+    # Unread notifs
+    unread_notifications = all_notifications.filter(Notification.is_read == False).all()
+    unread_notifications_count = len(unread_notifications)
+
+    return NotificationResponse(
+      read_notifications=read_notifications,
+      unread_notifications=unread_notifications,
+      all_notifications_count=all_notifications_count,
+      read_notifications_count=read_notifications_count,
+      unread_notifications_count=unread_notifications_count
+    ).model_dump()
+    
   except HTTPException as e:
     print(f"HTTPException: {e.detail}")
     raise e
