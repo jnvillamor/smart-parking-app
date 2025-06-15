@@ -19,6 +19,7 @@ import {
 } from '../ui/alert-dialog';
 import { cancelReservation } from '@/lib/reservation';
 import { toast } from 'sonner';
+import { getStatusBadge } from '@/lib/helper';
 
 const ReservationActionButtons = ({ reservation }: { reservation: Reservation }) => {
   const [isCancelling, setIsCancelling] = React.useState(false);
@@ -92,7 +93,7 @@ const ReservationActionButtons = ({ reservation }: { reservation: Reservation })
                 </div>
                 <div>
                   <Label className='text-sm font-medium'>Status</Label>
-                  <div className='mt-1'></div>
+                  <div className='mt-1'>{getStatusBadge(reservation.status)}</div>
                 </div>
               </div>
             </div>
