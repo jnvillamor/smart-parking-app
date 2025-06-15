@@ -194,3 +194,84 @@ async def get_users(
       status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
       detail="An error occurred while fetching the users."
     )
+
+@router.patch("/{user_id}/deactivate", status_code=status.HTTP_200_OK)
+async def deactivate_user(
+  user_id: int,
+  message: str = "You have been deactivated.",
+  db: Session = Depends(get_db),
+  current_user: User = Depends(get_admin_user)
+):
+  """
+  Deactivate a user. \n
+  Only accessible by admin users. \n
+  param user_id: ID of the user to deactivate.
+  """
+  try:
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+      raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="User not found."
+      )
+    
+    user.is_active = False
+    db.commit()
+    db.refresh(user)
+
+    return {
+      "message": "User deactivated successfully."
+    }
+  
+  except HTTPException as e:
+    db.rollback()
+    print(f"Error deactivating user {user_id}: {e.detail}", flush=True)
+    raise e
+  
+  except Exception as e:
+    db.rollback()
+    print(f"Error deactivating user {user_id}: {e}", flush=True)
+    raise HTTPException(
+      status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+      detail="An error occurred while deactivating the user."
+    )
+
+@router.patch("/{user_id}/activate", status_code=status.HTTP_200_OK)
+async def activate_user(
+  user_id: int,
+  db: Session = Depends(get_db),
+  current_user: User = Depends(get_admin_user)
+):
+  """
+  Activate a user. \n
+  Only accessible by admin users. \n
+  param user_id: ID of the user to activate.
+  """
+  try:
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+      raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="User not found."
+      )
+    
+    user.is_active = True
+    db.commit()
+    db.refresh(user)
+
+    return {
+      "message": "User activated successfully."
+    }
+  
+  except HTTPException as e:
+    db.rollback()
+    print(f"Error activating user {user_id}: {e.detail}", flush=True)
+    raise e
+  
+  except Exception as e:
+    db.rollback()
+    print(f"Error activating user {user_id}: {e}", flush=True)
+    raise HTTPException(
+      status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+      detail="An error occurred while activating the user."
+    )
