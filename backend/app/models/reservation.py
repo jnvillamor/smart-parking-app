@@ -16,6 +16,7 @@ class Reservation(Base):
   is_cancelled = Column(Boolean, default=False, nullable=False)
   created_at = Column(DateTime(timezone=True), default=func.now(), nullable=False)
   updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=False)
+  notified = Column(Boolean, default=False, nullable=False)
 
   user = relationship("User", back_populates="reservations")
   parking = relationship("ParkingLot", back_populates="reservations")

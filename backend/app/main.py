@@ -1,9 +1,12 @@
 from fastapi import FastAPI
 from app.core.config import get_config
-from app.utils import run_migrations, init_admin
+from app.utils import run_migrations, init_admin, check_reservation_expirations
 from app.routes import register_routes
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
+from apscheduler.schedulers.background import BackgroundScheduler
+
+scheduler = BackgroundScheduler()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -11,7 +14,13 @@ async def lifespan(app: FastAPI):
     # Run migrations on startup
     run_migrations()
     init_admin()
+
+    # Start background job
+    scheduler.add_job(check_reservation_expirations, 'interval', minutes=1, id='check_reservation_expirations')
     yield
+
+    # Shutdown background job
+    scheduler.shutdown(wait=False)
 
 config = get_config()
 def create_app() -> FastAPI:
