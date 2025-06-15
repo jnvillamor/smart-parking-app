@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import Pagination from '../Pagination';
 import ReservationActionButtons from './ReservationActionButtons';
-import SortingButton from './SortingButton';
+import SortingButton from '../SortingButton';
 import { Calendar } from 'lucide-react';
 import { getStatusBadge } from '@/lib/helper';
 

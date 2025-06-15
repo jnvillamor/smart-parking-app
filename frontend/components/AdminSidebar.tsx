@@ -1,6 +1,6 @@
 "use client"
 
-import { Car, LayoutDashboard, MapPin, Calendar, Settings } from "lucide-react"
+import { Car, LayoutDashboard, MapPin, Calendar, Settings, Users } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -31,6 +31,11 @@ const menuItems = [
     title: "Reservations",
     url: "/admin/reservations",
     icon: Calendar,
+  },
+  {
+    title: "Users",
+    url: "/admin/users",
+    icon: Users,
   },
   {
     title: "Settings",

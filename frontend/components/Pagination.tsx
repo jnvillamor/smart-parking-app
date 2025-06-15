@@ -1,6 +1,6 @@
 'use client';
 
-import { ParkingLocation, Reservation } from '@/lib/types';
+import { ParkingLocation, Reservation, UserProfile } from '@/lib/types';
 import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Button } from './ui/button';
@@ -18,6 +18,7 @@ type PaginationProps = {
     total_pages: number;
     parking_lots?: ParkingLocation[];
     reservations?: Reservation[];
+    users?: UserProfile[];
   };
 };
 

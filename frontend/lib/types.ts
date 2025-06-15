@@ -5,8 +5,28 @@ export interface UserProfile {
   last_name: string;
   full_name: string;
   role: string;
+  last_login: string;
+  last_seen: string;
+  is_active: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export interface PaginatedUsers {
+  total: number;
+  page: number;
+  limit: number;
+  total_pages: number;
+  has_next: boolean;
+  has_previous: boolean;
+  users: UserProfile[];
+}
+
+export interface UserSummary {
+  total_users: number;
+  active_users: number;
+  inactive_users: number;
+  admin_users: number;
 }
 
 export interface LoginResponse {
