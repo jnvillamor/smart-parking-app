@@ -21,13 +21,10 @@ class ReservationResponse(ReservationBase):
   is_cancelled: bool
   created_at: datetime
   updated_at: datetime
+  duration_hours: float
+  total_cost: float
   user: UserResponse
-  parking: "ParkingResponseWithoutReservations" 
-
-  @computed_field
-  def duration(self) -> float:
-    """Calculate the duration of the reservation in hours"""
-    return (self.end_time - self.start_time).total_seconds() / 3600
+  parking: "ParkingResponseWithoutReservations"
 
   @computed_field
   def status(self) -> str:
@@ -41,13 +38,6 @@ class ReservationResponse(ReservationBase):
       return "Upcoming"
     else:
       return "Completed"
-    
-  @computed_field
-  def total_cost(self) -> float:
-    """Calculate the total cost of the reservation based on the duration and parking rate."""
-    if self.parking and hasattr(self.parking, 'rate'):
-      return self.duration * self.parking.rate
-    return 0.0
     
   model_config = {
     'from_attributes': True,
