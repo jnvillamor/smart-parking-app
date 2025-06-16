@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Car, LayoutDashboard, MapPin, User } from 'lucide-react';
+import { Bell, Calendar, Car, LayoutDashboard, MapPin, User } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -38,6 +38,11 @@ const UserSidebar = () => {
       title: 'Profile',
       url: '/profile',
       icon: User
+    },
+    {
+      title: 'Notifications',
+      url: '/notifications',
+      icon: Bell
     }
   ];
 

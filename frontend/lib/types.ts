@@ -49,6 +49,23 @@ export interface UserReservations {
   past_reservations: Reservation[];
 }
 
+export interface Notification {
+  id: number
+  user_id: number
+  message: string
+  created_at: string
+  is_read: boolean
+  user: UserProfile;
+}
+
+export interface UserNotifications {
+  read_notifications: Notification[];
+  unread_notifications: Notification[];
+  all_notifications_count: number;
+  unread_notifications_count: number;
+  read_notifications_count: number;
+}
+
 export interface LoginResponse {
   access_token: string;
   access_token_expires: string;
