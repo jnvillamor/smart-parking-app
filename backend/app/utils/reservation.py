@@ -114,4 +114,4 @@ def sort_by_status(now: datetime, query: Query, sort_order: str = "asc"):
   return query.order_by(
     status_order_case.asc() if sort_order == "asc" else status_order_case.desc(),
     Reservation.start_time.asc() if sort_order == "asc" else Reservation.start_time.desc()
-  ).all()
+  )
