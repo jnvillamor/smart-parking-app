@@ -1,13 +1,26 @@
+# Stage 1: Builder
+FROM python:3.13-alpine AS builder
+
+WORKDIR /app/backend
+
+RUN apk add --no-cache build-base
+
+COPY backend/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Stage 2: Final
 FROM python:3.13-alpine
 
 WORKDIR /app/backend
 
-COPY backend/requirements.txt .
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-RUN pip install --no-cache-dir -r requirements.txt
-
+COPY --from=builder /usr/local /usr/local
 COPY backend/ .
+
+USER appuser
 
 EXPOSE 8000
 
-CMD ["python3", "app/main.py"]
+CMD ["gunicorn", "app.main:app", "-k", "uvicorn.workers.UvicornWorker", "-b", "0.0.0.0:8000", "--workers=4"]
+
