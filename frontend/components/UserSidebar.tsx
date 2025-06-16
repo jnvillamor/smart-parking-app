@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { Bell, Calendar, Car, LayoutDashboard, MapPin, User } from 'lucide-react';
 import {
@@ -16,8 +16,9 @@ import {
 import React from 'react';
 import Link from 'next/link';
 import LogoutButton from './LogoutButton';
+import { Badge } from './ui/badge';
 
-const UserSidebar = () => {
+const UserSidebar = ({ unread_notifs }: { unread_notifs: number | undefined }) => {
   const MENUITEM = [
     {
       title: 'Dashboard',
@@ -42,7 +43,13 @@ const UserSidebar = () => {
     {
       title: 'Notifications',
       url: '/notifications',
-      icon: Bell
+      icon: Bell,
+      badge:
+        unread_notifs && unread_notifs > 0 ? (
+          <Badge className='ml-2' variant='destructive'>
+            {unread_notifs}
+          </Badge>
+        ) : null
     }
   ];
 
@@ -64,10 +71,13 @@ const UserSidebar = () => {
             <SidebarMenu>
               {MENUITEM.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton asChild className='flex items-center justify-between'>
                     <Link href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
+                      <div className='py-4 flex items-center space-x-2'>
+                        <item.icon className='h-4 w-4'/>
+                        <span>{item.title}</span>
+                      </div>
+                      {item.badge && item.badge}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -76,7 +86,7 @@ const UserSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-       <SidebarFooter>
+      <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>

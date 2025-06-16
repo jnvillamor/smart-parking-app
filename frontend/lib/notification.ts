@@ -3,7 +3,7 @@
 import { authOptions } from "@/app/api/auth/options"
 import { getServerSession } from "next-auth"
 import { UserNotifications } from "./types";
-import { revalidatePath } from "next/cache";
+import { revalidateTag } from "next/cache";
 
 export const getAllNotifications = async () => {
   const session = await getServerSession(authOptions);
@@ -57,7 +57,7 @@ export const toggleNotificationReadStatus = async (notificationId: number) => {
       return { success: false, message: errorData.message || "Failed to toggle notification read status" };
     }
 
-    revalidatePath("/notifications");
+    revalidateTag("notifications");
     return { success: true, message: "Notification read status toggled successfully" };
   } catch (error) {
     console.error("Error toggling notification read status:", error);
@@ -85,7 +85,7 @@ export const deleteNotification = async (notificationId: number) => {
       return { success: false, message: errorData.message || "Failed to delete notification" };
     }
 
-    revalidatePath("/notifications");
+    revalidateTag("notifications");
     return { success: true, message: "Notification deleted successfully" };
   } catch (error) {
     console.error("Error deleting notification:", error);
@@ -113,7 +113,7 @@ export const markAllNotificationsAsRead = async () => {
       return { success: false, message: errorData.message || "Failed to mark all notifications as read" };
     }
 
-    revalidatePath("/notifications");
+    revalidateTag("/notifications");
     return { success: true, message: "All notifications marked as read successfully" };
   } catch (error) {
     console.error("Error marking all notifications as read:", error);
