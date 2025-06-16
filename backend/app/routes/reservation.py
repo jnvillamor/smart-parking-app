@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from datetime import datetime, timezone
 from typing import Literal
 
-from app.models import Reservation, User, ParkingLot
+from app.models import Reservation, User, ParkingLot, Notification
 from app.schema import ReservationCreate, ReservationResponse, PaginatedReservations, ReservationSummary
 from app.core.database import get_db
 from app.utils import get_current_user, is_valid_request, get_admin_user, sort_reservations, get_current_utc_time, sort_by_status
@@ -132,7 +132,7 @@ async def  get_reservation_summary(
   Get a summary of reservations.
   """
   try:
-    now = datetime.now(timezone.utc)
+    now = get_current_utc_time()
 
     total_reservations = db.query(Reservation).count()
     total_active_reservations = db.query(Reservation).filter(
@@ -179,6 +179,8 @@ async def cancel_reservation(
   param reservation_id: ID of the reservation to cancel
   """
   try:
+    now = get_current_utc_time()
+
     reservation = db.execute(
       select(Reservation).where(Reservation.id == reservation_id)
     ).scalar_one_or_none()
@@ -190,7 +192,7 @@ async def cancel_reservation(
       )
 
     # Check if the reservation is already cancelled or if it is currently active
-    is_active = reservation.start_time <= datetime.now(timezone.utc) <= reservation.end_time
+    is_active = reservation.start_time <= now <= reservation.end_time
     if reservation.is_cancelled or is_active:
       raise HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST,
@@ -205,6 +207,15 @@ async def cancel_reservation(
 
     # Update the reservation status
     reservation.is_cancelled = True
+
+    # Create a notification for the user
+    notif = Notification(
+      user_id = reservation.user_id,
+      message = f"Your reservation for {reservation.parking.name} has been cancelled.",
+    )
+    reservation.notified = True
+
+    db.add(notif)
     db.commit()
     db.refresh(reservation)
 

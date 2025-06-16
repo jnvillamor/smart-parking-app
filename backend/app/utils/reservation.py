@@ -32,6 +32,7 @@ def is_valid_request(now: datetime, reservation: ReservationCreate, parking_lot:
   # Check if the reservation overlaps with an existing reservation for the user
   # This checks if the user already has a reservation on the same parking that overlaps with the new one
   existing_reservation = db.query(Reservation).filter(
+    Reservation.is_cancelled == False,
     Reservation.user_id == current_user.id,
     Reservation.parking_id == reservation.parking_id,
     or_(
