@@ -7,6 +7,11 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import React from 'react';
 
+export const metadata = {
+  title: 'Register',
+  description: 'Create a new SmartPark account to find and reserve parking spots in real-time.',
+};
+
 const RegisterPage = async () => {
   const session = await getServerSession(authOptions);
   if (session) {

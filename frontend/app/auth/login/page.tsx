@@ -3,6 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Car } from 'lucide-react';
 import Link from 'next/link';
 
+export const metadata = {
+  title: 'Login',
+  description: 'Sign in to your SmartPark account to find and reserve parking spots in real-time.',
+};
+
 const LoginPage = async () => {
   return (
     <div className='min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4'>

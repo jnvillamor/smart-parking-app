@@ -8,6 +8,11 @@ import { getAllNotifications } from '@/lib/notification';
 import { Bell, BellRing, Check } from 'lucide-react';
 import React from 'react';
 
+export const metadata = {
+  title: 'Notifications',
+  description: 'View and manage your notifications from SmartPark.'
+};
+
 const NotificationPage = async () => {
   const notifsData = await getAllNotifications();
 

@@ -7,6 +7,11 @@ import { Crown, UserCheck2, Users, UserX2 } from 'lucide-react';
 import { SearchParams } from 'next/dist/server/request/search-params';
 import React from 'react';
 
+export const metadata = {
+  title: 'Users',
+  description: 'Manage and view all users in the system.',
+};
+
 const AdminUsersTab = async ({ searchParams }: { searchParams: Promise<SearchParams> }) => {
   const params = await searchParams;
   console.log('Admin Users Tab Params:', params);

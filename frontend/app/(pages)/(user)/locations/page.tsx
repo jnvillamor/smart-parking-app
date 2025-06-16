@@ -10,6 +10,11 @@ import { getServerSession } from 'next-auth';
 import { SearchParams } from 'next/dist/server/request/search-params';
 import React from 'react';
 
+export const metadata = {
+  title: 'Find Parking',
+  description: 'Browse available parking locations and reserve spots in real-time.',
+};
+
 const Locations = async ({ searchParams }: { searchParams: Promise<SearchParams> }) => {
   const params = await searchParams;
   const parkings = await getParkingLocations({ ...params, status: 'active' });

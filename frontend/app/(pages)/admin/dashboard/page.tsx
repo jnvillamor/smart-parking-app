@@ -7,6 +7,11 @@ import { getReservations } from '@/lib/reservation';
 import { BadgeDollarSign, Calendar, DollarSign, MapPin, Users } from 'lucide-react';
 import React from 'react';
 
+export const metadata = {
+  title: 'Dashboard',
+  description: 'Manage your SmartPark system with ease.',
+};
+
 const AdminDashboard = async () => {
   const summary = await getSummaryData();
   const recent_reservations = await getReservations({ sort: 'time', order: 'desc' });

@@ -8,6 +8,11 @@ import { getUserReservations } from '@/lib/user';
 import { Calendar, Clock, DollarSign } from 'lucide-react';
 import React from 'react';
 
+export const metadata = {
+  title: 'My Reservations',
+  description: 'View and manage your parking reservations.'
+};
+
 const UserReservation = async () => {
   const reservations = await getUserReservations();
 

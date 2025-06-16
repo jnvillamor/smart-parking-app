@@ -8,6 +8,11 @@ import { Calendar, Car, Clock, MapPin, Plus } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 
+export const metadata = {
+  title: 'Dashboard',
+  description: 'Your personalized dashboard for managing reservations and parking activities.'
+};
+
 const UserDashboard = async () => {
   const res = await getUserDashboardData();
   if (!res.success || !res.data) {

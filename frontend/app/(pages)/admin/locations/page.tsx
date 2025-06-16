@@ -4,6 +4,11 @@ import { SidebarTrigger } from '@/components/ui/sidebar'
 import { SearchParams } from 'next/dist/server/request/search-params'
 import React from 'react'
 
+export const metadata = {
+  title: 'Parking Locations',
+  description: 'Manage and view all parking locations in the system.'
+};
+
 const LocationPage = async ({ searchParams }: { searchParams: Promise<SearchParams>}) => {
   const params = await searchParams;
   return (
