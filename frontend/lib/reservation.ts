@@ -3,7 +3,7 @@
 import { getServerSession } from 'next-auth';
 import { PaginatedReservations, ReservationSummary } from './types';
 import { SearchParams } from 'next/dist/server/request/search-params';
-import { revalidatePath } from 'next/cache';
+import { revalidateTag } from 'next/cache';
 import { authOptions } from '@/app/api/auth/options';
 import { z } from 'zod';
 import { AddReservationSchema } from './schema';
@@ -74,6 +74,9 @@ export const getReservations = async (params?: SearchParams) => {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${session.accessToken}`
+      },
+      next: { 
+        tags: ['reservations'],
       }
     });
 
@@ -126,7 +129,7 @@ export const cancelReservation = async (reservationID: number) => {
       };
     }
     
-    revalidatePath('/admin/reservations');
+    revalidateTag('reservations');
     return {
       success: true,
       message: 'Reservation cancelled successfully'
@@ -168,7 +171,7 @@ export const createReservation = async (data: z.infer<typeof AddReservationSchem
       };
     }
 
-    revalidatePath('/admin/reservations');
+    revalidateTag('reservations');
     return {
       success: true,
       message: 'Reservation created successfully'

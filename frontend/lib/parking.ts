@@ -3,7 +3,7 @@
 import { z } from 'zod';
 import { AddLocationSchema } from './schema';
 import { getServerSession } from 'next-auth';
-import { revalidatePath } from 'next/cache';
+import { revalidateTag } from 'next/cache';
 import { PaginatedParkingLocations, ParkingSummary } from './types';
 import { authOptions } from '@/app/api/auth/options';
 import { SearchParams } from 'next/dist/server/request/search-params';
@@ -35,7 +35,7 @@ export const createParkingLocation = async (data: z.infer<typeof AddLocationSche
       };
     }
 
-    revalidatePath('/admin/locations');
+    revalidateTag('locations');
     return {
       success: true,
       message: 'Parking location added successfully.'
@@ -74,6 +74,9 @@ export const getParkingLocations = async (params?: SearchParams) => {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${session.accessToken}`
+      },
+      next: {
+        tags: ['locations'],
       }
     });
 
@@ -127,7 +130,7 @@ export const updateParkingLocation = async (id: number, data: z.infer<typeof Add
       };
     }
 
-    revalidatePath('/admin/locations');
+    revalidateTag('locations');
     return {
       success: true,
       message: 'Parking location updated successfully.'
@@ -167,7 +170,7 @@ export const deleteParkingLocation = async (id: number) => {
       };
     }
 
-    revalidatePath('/admin/locations');
+    revalidateTag('locations');
     return {
       success: true,
       message: 'Parking location deleted successfully.'
@@ -247,7 +250,7 @@ export const toggleParkingLocationStatus = async (id: number) => {
       };
     }
 
-    revalidatePath('/admin/locations');
+    revalidateTag('locations');
     return {
       success: true,
       message: 'Parking location status updated successfully.'
