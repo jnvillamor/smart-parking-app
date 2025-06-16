@@ -6,6 +6,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getUserReservations } from '@/lib/user';
 import { Calendar, Clock, DollarSign } from 'lucide-react';
+import Link from 'next/link';
 import React from 'react';
 
 export const metadata = {
@@ -63,55 +64,53 @@ const UserReservation = async () => {
         {/* Reservation Tab */}
         <Tabs defaultValue='current' className='space-y-4'>
           <TabsList>
-              <TabsTrigger value="current">
-                Current ({reservations.data.active_reservation_count + reservations.data.upcoming_reservation_count})
-              </TabsTrigger>
-              <TabsTrigger value="history">History ({reservations.data.past_reservation_count})</TabsTrigger>
-            </TabsList>
+            <TabsTrigger value='current'>
+              Current ({reservations.data.active_reservation_count + reservations.data.upcoming_reservation_count})
+            </TabsTrigger>
+            <TabsTrigger value='history'>History ({reservations.data.past_reservation_count})</TabsTrigger>
+          </TabsList>
 
-            <TabsContent value='current'>
-              {reservations.data.active_reservation_count === 0 && reservations.data.upcoming_reservation_count === 0 ? (
-                <Card>
-                  <CardContent className="text-center py-12">
-                    <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">No Current Reservations</h3>
-                    <p className="text-muted-foreground mb-4">
-                      You don&apos;t have any active or upcoming parking reservations.
-                    </p>
+          <TabsContent value='current'>
+            {reservations.data.active_reservation_count === 0 && reservations.data.upcoming_reservation_count === 0 ? (
+              <Card>
+                <CardContent className='text-center py-12'>
+                  <Calendar className='h-12 w-12 text-muted-foreground mx-auto mb-4' />
+                  <h3 className='text-lg font-semibold mb-2'>No Current Reservations</h3>
+                  <p className='text-muted-foreground mb-4'>You don&apos;t have any active or upcoming parking reservations.</p>
+                  <Link href='/locations'>
                     <Button>Find Parking</Button>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="space-y-4">
-                  {reservations.data.active_reservations.map((reservation) => (
-                    <ReservationCard key={reservation.id} reservation={reservation} />
-                  ))}
-                  {reservations.data.upcoming_reservations.map((reservation) => (
-                    <ReservationCard key={reservation.id} reservation={reservation} />
-                  ))}
-                </div>
-              )}
-            </TabsContent>
+                  </Link>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className='space-y-4'>
+                {reservations.data.active_reservations.map((reservation) => (
+                  <ReservationCard key={reservation.id} reservation={reservation} />
+                ))}
+                {reservations.data.upcoming_reservations.map((reservation) => (
+                  <ReservationCard key={reservation.id} reservation={reservation} />
+                ))}
+              </div>
+            )}
+          </TabsContent>
 
-            <TabsContent value='history'>
-              {reservations.data.past_reservation_count === 0 ? (
-                <Card>
-                  <CardContent className="text-center py-12">
-                    <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">No Past Reservations</h3>
-                    <p className="text-muted-foreground mb-4">
-                      You don&apos;t have any past parking reservations.
-                    </p>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="space-y-4">
-                  {reservations.data.past_reservations.map((reservation) => (
-                    <ReservationCard key={reservation.id} reservation={reservation} />
-                  ))}
-                </div>
-              )}
-            </TabsContent>
+          <TabsContent value='history'>
+            {reservations.data.past_reservation_count === 0 ? (
+              <Card>
+                <CardContent className='text-center py-12'>
+                  <Calendar className='h-12 w-12 text-muted-foreground mx-auto mb-4' />
+                  <h3 className='text-lg font-semibold mb-2'>No Past Reservations</h3>
+                  <p className='text-muted-foreground mb-4'>You don&apos;t have any past parking reservations.</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className='space-y-4'>
+                {reservations.data.past_reservations.map((reservation) => (
+                  <ReservationCard key={reservation.id} reservation={reservation} />
+                ))}
+              </div>
+            )}
+          </TabsContent>
         </Tabs>
       </div>
     </>
