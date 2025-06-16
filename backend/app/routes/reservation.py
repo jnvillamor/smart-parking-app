@@ -87,14 +87,16 @@ async def get_reservations(
       Reservation.is_cancelled == (status == "cancelled") if status == "cancelled" else True,
       and_(
         Reservation.start_time <= now,
-        Reservation.end_time >= now
+        Reservation.end_time >= now,
+        Reservation.is_cancelled == False
       ) if status == "active" else True,
       and_(
-        Reservation.start_time > now
+        Reservation.start_time > now,
+        Reservation.is_cancelled == False
       ) if status == "upcoming" else True,
       and_(
         Reservation.end_time < now,
-        Reservation.is_cancelled == False
+        Reservation.is_cancelled == False,
       ) if status == "completed" else True,
     )
 
@@ -104,6 +106,7 @@ async def get_reservations(
       reservations = sort_by_status(now=now, query=query, sort_order=order)
     else:
       reservations = sort_reservations(query, sort, order)
+    reservations = reservations.offset((page - 1) * limit).limit(limit).all()
 
     return PaginatedReservations(
       reservations=reservations,

@@ -5,7 +5,7 @@ from datetime import datetime, timezone, timedelta
 from typing import Literal
 
 from app.core.database import get_db
-from app.models import User, Reservation
+from app.models import User, Reservation, Notification
 from app.schema import UserBase, UserResponse, UpdatePassword, AdminUserSummary, PaginatedUsers, UserDashboardSummary, UserReservationSummary
 from app.utils import get_current_user, verify_password, hash_password, get_admin_user, get_current_utc_time 
 
@@ -217,6 +217,14 @@ async def deactivate_user(
       )
     
     user.is_active = False
+
+    # Create a notification for the user
+    notif = Notification(
+      user_id = user.id,
+      message = message,
+    )
+
+    db.add(notif)
     db.commit()
     db.refresh(user)
 
@@ -257,6 +265,14 @@ async def activate_user(
       )
     
     user.is_active = True
+
+    # Create a notification for the user
+    notif = Notification(
+      user_id = user.id,
+      message = f"Your account has been activated. You can now log in.",
+    )
+
+    db.add(notif)
     db.commit()
     db.refresh(user)
 

@@ -73,7 +73,7 @@ async def login_user(user: OAuth2PasswordRequestForm = Depends(), db: Session = 
     if not db_user.is_active:
       raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
-        detail="User is inactive",
+        detail="Your account has been deactivated. Please contact support.",
       )
     
     # Generate access and refresh tokens

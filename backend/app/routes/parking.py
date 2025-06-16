@@ -3,7 +3,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.utils import get_current_user, get_admin_user
-from app.models import ParkingLot, User, Reservation
+from app.models import ParkingLot, User, Reservation, Notification
 from app.schema import ParkingCreate, ParkingResponse, PaginatedParkingResponse, ParkingSummaryResponse
 from typing import Literal
 
@@ -197,6 +197,22 @@ async def delete_parking_lot(
         detail="Parking lot not found."
       )
     
+    # Cancel all reservations for this parking lot
+    reservations = db.query(Reservation).filter(
+      Reservation.parking_id == parking_lot.id,
+      Reservation.is_cancelled == False,
+    )
+    for reservation in reservations:
+      reservation.is_cancelled = True
+      # Create a notification for the user
+      notification = Notification(
+        user_id = reservation.user_id,
+        message = f"Your reservation for parking lot '{parking_lot.name}' has been cancelled due to the lot being deleted.",
+      )
+      reservation.notified = True
+      db.add(notification)
+      db.add(reservation)
+
     # Delete the parking lot
     db.delete(parking_lot)
     db.commit()
@@ -275,6 +291,26 @@ async def toggle_parking_lot_status(
     
     # Toggle the status
     parking_lot.is_active = not parking_lot.is_active
+
+    # If toggling to inactive, cancel all reservations
+    if not parking_lot.is_active:
+      reservations = db.query(Reservation).filter(
+        Reservation.parking_id == parking_lot.id,
+        Reservation.is_cancelled == False,
+      )
+      
+      # Cancel all reservations for this parking lot
+      for reservation in reservations:
+        reservation.is_cancelled = True
+        # Create a notification for the user
+        notification = Notification(
+          user_id = reservation.user_id,
+          message = f"Your reservation for parking lot '{parking_lot.name}' has been cancelled due to the lot being deactivated.",
+        )
+        reservation.notified = True
+        db.add(notification)
+        db.add(reservation)
+
     db.commit()
     db.refresh(parking_lot)
 
