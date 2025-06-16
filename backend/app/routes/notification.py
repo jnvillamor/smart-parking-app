@@ -24,7 +24,7 @@ def get_notifications(
     if current_user.id != user_id:
       raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You do not have permission to access these notifications.")
     
-    all_notifications = db.query(Notification).filter(Notification.user_id == user_id)
+    all_notifications = db.query(Notification).filter(Notification.user_id == user_id).order_by(Notification.created_at.desc())
     all_notifications_count = all_notifications.count()
 
     # Read notifs
@@ -32,7 +32,7 @@ def get_notifications(
     read_notifications_count = len(read_notifications)
 
     # Unread notifs
-    unread_notifications = all_notifications.filter(Notification.is_read == False).all()
+    unread_notifications = all_notifications.filter(Notification.is_read == False).order_by(Notification.created_at.desc()).all()
     unread_notifications_count = len(unread_notifications)
 
     return NotificationResponse(
