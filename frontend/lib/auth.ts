@@ -100,10 +100,20 @@ export const loginUser = async (credentials: Record<'email' | 'password', string
 
   if (!res.ok) {
     console.error('Error in login:', res.statusText);
-    return null;
+    const errorData = await res.json();
+    return {
+      error: true,
+      message: errorData.detail || 'Login failed. Please check your credentials and try again.',
+      user: null,
+    }
   }
 
   const data = await res.json();
+  return {
+    error: false,
+    message: 'Login successful',
+    data: data
+  }
   if (!data) {
     console.error('Invalid login response:', data);
     return null;

@@ -1,7 +1,7 @@
-import { getCurrentUser, loginUser, refreshToken } from "@/lib/auth";
-import { UserProfile } from "@/lib/types";
-import { AuthOptions } from "next-auth";
-import Credentials from "next-auth/providers/credentials";
+import { getCurrentUser, loginUser, refreshToken } from '@/lib/auth';
+import { UserProfile } from '@/lib/types';
+import { AuthOptions } from 'next-auth';
+import Credentials from 'next-auth/providers/credentials';
 
 export const authOptions: AuthOptions = {
   session: {
@@ -18,17 +18,23 @@ export const authOptions: AuthOptions = {
       async authorize(credentials) {
         if (!credentials || credentials === null || !credentials.email || !credentials.password) return null;
 
-        const data = await loginUser(credentials);
+          const res = await loginUser(credentials);
+          
+          if( res.error ) {
+            console.error('Login failed:', res.message);
+            throw new Error(res.message || 'Login failed. Please check your credentials and try again.');
+          }
 
-        return {
-          id: data.user.id,
-          user: data.user,
-          accessToken: data.access_token,
-          accessTokenExpires: data.access_token_expires,
-          refreshToken: data.refresh_token,
-          refreshTokenExpires: data.refresh_token_expires,
-          role: data.user.role || 'user'
-        };
+          const data = res.data;
+          return {
+            id: data.user.id,
+            user: data.user,
+            accessToken: data.access_token,
+            accessTokenExpires: data.access_token_expires,
+            refreshToken: data.refresh_token,
+            refreshTokenExpires: data.refresh_token_expires,
+            role: data.user.role || 'user'
+          };
       }
     })
   ],
@@ -47,7 +53,7 @@ export const authOptions: AuthOptions = {
       }
 
       // Refetch the user profile for accurate user data
-      if (token.accessTokenExpires && Date.now() < (token.accessTokenExpires * 1000)) {
+      if (token.accessTokenExpires && Date.now() < token.accessTokenExpires * 1000) {
         const user = await getCurrentUser(token.accessToken);
 
         if (user) token.user = user;

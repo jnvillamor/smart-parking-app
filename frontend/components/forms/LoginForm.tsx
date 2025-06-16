@@ -37,14 +37,16 @@ const LoginForm = () => {
       });
 
       if(!loginRes?.ok) {
-        throw new Error(loginRes?.error || 'Login failed');
+        console.error('Sign-in failed:', loginRes?.error);
+        toast.error(loginRes?.error || 'Failed to sign in. Please check your credentials and try again.');
+        return;
       }
 
       toast.success('Successfully signed in!');
       router.push(callbackUrl);
     } catch (error) {
       console.log('Error during sign-in:', error);
-      toast.error('Failed to sign in. Please check your credentials and try again.');
+      toast.error(error instanceof Error && error.message || 'Failed to sign in. Please check your credentials and try again.');
     }
   };
 
