@@ -20,9 +20,9 @@ export const authOptions: AuthOptions = {
 
           const res = await loginUser(credentials);
           
-          if( res.error ) {
-            console.error('Login failed:', res.message);
-            throw new Error(res.message || 'Login failed. Please check your credentials and try again.');
+          if( !res ||  res.error && !res.data  ) {
+            console.log('Login failed:', res?.message);
+            throw new Error(res?.message || 'Login failed. Please check your credentials and try again.');
           }
 
           const data = res.data;

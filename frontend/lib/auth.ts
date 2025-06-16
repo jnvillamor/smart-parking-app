@@ -99,7 +99,7 @@ export const loginUser = async (credentials: Record<'email' | 'password', string
   });
 
   if (!res.ok) {
-    console.error('Error in login:', res.statusText);
+    console.log('Error in login:', res.statusText);
     const errorData = await res.json();
     return {
       error: true,
@@ -114,12 +114,6 @@ export const loginUser = async (credentials: Record<'email' | 'password', string
     message: 'Login successful',
     data: data
   }
-  if (!data) {
-    console.error('Invalid login response:', data);
-    return null;
-  }
-
-  return data;
 };
 
 export const getCurrentUser = async (token: string) => {
