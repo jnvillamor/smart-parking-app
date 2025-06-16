@@ -113,7 +113,7 @@ export const markAllNotificationsAsRead = async () => {
       return { success: false, message: errorData.message || "Failed to mark all notifications as read" };
     }
 
-    revalidateTag("/notifications");
+    revalidateTag("notifications");
     return { success: true, message: "All notifications marked as read successfully" };
   } catch (error) {
     console.error("Error marking all notifications as read:", error);
