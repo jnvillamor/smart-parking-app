@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List
 
 from app.core.database import get_db
-from app.models import Notification
+from app.models import Notification, User
 from app.schema import NotificationBase, NotificationResponse
 from app.utils import get_current_user
 
@@ -16,7 +15,7 @@ router = APIRouter(
 def get_notifications(
   user_id: int,
   db: Session = Depends(get_db),
-  current_user: int = Depends(get_current_user)
+  current_user: User = Depends(get_current_user)
 ):
   """
   Retrieve all notifications for the current user.
@@ -51,14 +50,14 @@ def get_notifications(
     print(f"Unexpected error: {str(e)}")
     raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
-@router.patch("/{notification_id}", response_model=NotificationBase, status_code=status.HTTP_200_OK)
+@router.patch("/{notification_id}/toggle-read", response_model=NotificationBase, status_code=status.HTTP_200_OK)
 def mark_notification_as_read(
   notification_id: int,
   db: Session = Depends(get_db),
-  current_user: int = Depends(get_current_user)
+  current_user: User = Depends(get_current_user)
 ):
   """
-  Mark a notification as read for the current user.
+  Toggle the read status of a notification for the current user.
   """
   try:
     notif = db.query(Notification).filter(
@@ -69,7 +68,7 @@ def mark_notification_as_read(
     if not notif:
       raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found.")
     
-    notif.is_read = True
+    notif.is_read = not notif.is_read 
     db.commit()
     db.refresh(notif)
     
@@ -83,15 +82,19 @@ def mark_notification_as_read(
     print(f"Unexpected error: {str(e)}")
     raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
-@router.patch("/{notification_id}/mark-all-read", status_code=status.HTTP_200_OK)
+@router.patch("/{user_id}/mark-all-read", status_code=status.HTTP_200_OK)
 def mark_all_notifications_as_read(
+  user_id: int,
   db: Session = Depends(get_db),
-  current_user: int = Depends(get_current_user)
+  current_user: User = Depends(get_current_user)
 ):
   """
   Mark all notifications as read for the current user.
   """
   try:
+    if current_user.id != user_id:
+      raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You do not have permission to mark these notifications as read.")
+      
     notifs = db.query(Notification).filter(Notification.user_id == current_user.id, Notification.is_read == False).all()
     
     for notif in notifs:

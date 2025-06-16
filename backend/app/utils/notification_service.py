@@ -1,6 +1,6 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 from sqlalchemy.orm import Session
-from datetime import datetime
+from datetime import timedelta
 from app.models import Reservation, Notification
 from app.core.database import get_db
 from app.utils import get_current_utc_time
@@ -17,20 +17,19 @@ def check_reservation_expirations():
   try:
     reservations = db.query(Reservation).filter(
       Reservation.end_time <= now,
-      Reservation.is_cancelled == False,
       Reservation.notified == False
     ).all()
 
     for reservation in reservations:
       notif = Notification(
         user_id = reservation.user_id,
-        message = f"Your reservation for {reservation.parking.name} has expired.",
+        message = f"Your reservation for {reservation.parking.name} has {'been cancelled.' if reservation.is_cancelled else 'expired.'}",
         created_at = now 
       )
 
       reservation.notified = True
       db.add(notif)
-
+  
     db.commit()
 
     print(f"Checked {len(reservations)} reservations for expiration.", flush=True)
