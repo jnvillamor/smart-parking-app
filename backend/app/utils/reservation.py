@@ -35,15 +35,9 @@ def is_valid_request(now: datetime, reservation: ReservationCreate, parking_lot:
     Reservation.is_cancelled == False,
     Reservation.user_id == current_user.id,
     Reservation.parking_id == reservation.parking_id,
-    or_(
-      and_(
-        Reservation.start_time < reservation.end_time,
-        Reservation.end_time > reservation.start_time
-      ),
-      and_(
-        Reservation.start_time < reservation.start_time,
-        Reservation.end_time > reservation.start_time
-      )
+    and_(
+      Reservation.start_time < reservation.end_time,
+      Reservation.end_time > reservation.start_time
     )
   ).first()
 
