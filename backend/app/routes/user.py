@@ -426,6 +426,10 @@ async def get_user_reservation_summary(
     past_reservations = db.query(Reservation).filter(
       Reservation.user_id == user_id,
       Reservation.created_at < now,
+      or_(
+        Reservation.end_time < now,
+        Reservation.is_cancelled == True
+      )
     )
     past_reservation_count = past_reservations.count()
 
