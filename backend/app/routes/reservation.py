@@ -24,7 +24,7 @@ async def create_reservation(
   Create a new reservation.
   param reservation: ReservationCreate
   """
-  now = datetime.now(timezone.utc)
+  now = get_current_utc_time()
 
   try:
     # Lock the parking lot to prevent concurrent modifications
