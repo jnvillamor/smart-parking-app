@@ -7,7 +7,7 @@ from typing import Literal
 from app.core.database import get_db
 from app.models import User, Reservation, Notification
 from app.schema import UserBase, UserResponse, UpdatePassword, AdminUserSummary, PaginatedUsers, UserDashboardSummary, UserReservationSummary
-from app.utils import get_current_user, verify_password, hash_password, get_admin_user, get_current_utc_time 
+from app.utils import get_current_user, verify_password, hash_password, get_admin_user, get_current_utc_time, get_today_utc_range, get_month_utc_range
 
 router = APIRouter(
   prefix="/users",
@@ -305,7 +305,10 @@ async def get_user_dashboard_summary(
   param user_id: ID of the user whose dashboard summary is to be fetched.
   """
   try:
-    now = datetime.now(timezone.utc)
+    now = get_current_utc_time()
+    start_today_utc, end_today_utc = get_today_utc_range()
+    start_of_month, end_of_month = get_month_utc_range()
+
     if current_user.id != user_id and current_user.role != 'admin':
       raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
@@ -316,7 +319,7 @@ async def get_user_dashboard_summary(
     reservation_this_month = reservation_query.filter(
       Reservation.user_id == user_id,
       Reservation.is_cancelled == False,
-      Reservation.start_time >= now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+      Reservation.start_time >= start_of_month,
     )
 
     # Fetch active reservations for the user
@@ -324,13 +327,15 @@ async def get_user_dashboard_summary(
       Reservation.start_time <= now,
       Reservation.end_time >= now,
       Reservation.is_cancelled == False
-    ).count()
+    )
+    all_active_reservations_count = all_active_reservations.count()
 
     # Fetch all upcoming reservations for the user
     all_upcoming_reservations = reservation_this_month.filter(
       Reservation.start_time > now,
       Reservation.is_cancelled == False
-    ).count()
+    )
+    all_upcoming_reservations_count = all_upcoming_reservations.count()
 
     # Fetch all reservations for the current month
     all_reservation_current_month = reservation_this_month.count()
@@ -347,15 +352,19 @@ async def get_user_dashboard_summary(
       Reservation.start_time >= now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     ).scalar() or 0.0
 
-    # Fetch the recent reservations for the user
-    recent_reservations = reservation_query.filter(
+    # Fetch the active and upcoming reservations for the user
+    recent_reservations = db.query(Reservation).filter(
       Reservation.user_id == user_id,
-      Reservation.is_cancelled == False
-    ).order_by(Reservation.created_at.desc()).limit(5).all()
+      Reservation.is_cancelled == False,
+      or_(
+        Reservation.start_time >= start_today_utc,
+        Reservation.end_time >= start_today_utc
+      )
+    ).order_by(Reservation.start_time.desc()).limit(5).all()
     
     return UserDashboardSummary(
-      all_active_reservations=all_active_reservations,
-      all_upcoming_reservations=all_upcoming_reservations,
+      all_active_reservations=all_active_reservations_count,
+      all_upcoming_reservations=all_upcoming_reservations_count,
       all_reservation_current_month=all_reservation_current_month,
       total_spent_current_month=total_spent_current_month,
       ave_duration_per_reservation=ave_duration_per_reservation,
