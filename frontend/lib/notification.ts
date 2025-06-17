@@ -20,7 +20,6 @@ export const getAllNotifications = async () => {
       },
       next: {
         tags: ["notifications"],
-        revalidate: 60
       }
     })
 
