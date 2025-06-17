@@ -9,6 +9,7 @@ import { MapPin } from 'lucide-react';
 import { Reservation } from '@/lib/types';
 import { cancelReservation } from '@/lib/reservation';
 import { toast } from 'sonner';
+import FormattedDate from './DateFormatter';
 
 const ReservationCardActionButtons = ({ reservation }: { reservation: Reservation }) => {
   const [isCancelling, setIsCancelling] = React.useState<boolean>(false);
@@ -68,11 +69,11 @@ const ReservationCardActionButtons = ({ reservation }: { reservation: Reservatio
                   <div className='space-y-2'>
                     <div>
                       <span className='text-muted-foreground block'>Start Time:</span>
-                      <span className='font-medium'>{new Date(reservation.start_time).toLocaleString()}</span>
+                      <span className='font-medium'><FormattedDate isoDate={reservation.start_time} /></span>
                     </div>
                     <div>
                       <span className='text-muted-foreground block'>End Time:</span>
-                      <span className='font-medium'>{new Date(reservation.end_time).toLocaleString()}</span>
+                      <span className='font-medium'><FormattedDate isoDate={reservation.end_time} /></span>
                     </div>
                     <div>
                       <span className='text-muted-foreground block'>Duration:</span>

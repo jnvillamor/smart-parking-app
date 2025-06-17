@@ -20,6 +20,7 @@ import {
 import { cancelReservation } from '@/lib/reservation';
 import { toast } from 'sonner';
 import { getStatusBadge } from '@/lib/helper';
+import FormattedDate from '../DateFormatter';
 
 const ReservationActionButtons = ({ reservation }: { reservation: Reservation }) => {
   const [isCancelling, setIsCancelling] = React.useState(false);
@@ -79,9 +80,9 @@ const ReservationActionButtons = ({ reservation }: { reservation: Reservation })
                   <div className='mt-1 space-y-1'>
                     <p className='flex items-center text-sm'>
                       <Clock className='h-3 w-3 mr-2' />
-                      Start: {new Date(reservation.start_time).toLocaleString()}
+                      Start: {<FormattedDate isoDate={reservation.start_time} />}
                     </p>
-                    <p className='text-sm'>End: {new Date(reservation.end_time).toLocaleString()}</p>
+                    <p className='text-sm'>End: <FormattedDate isoDate={reservation.end_time} /></p>
                     <p className='text-sm'>Duration: {reservation.duration_hours.toFixed(2)} hours</p>
                   </div>
                 </div>
@@ -99,7 +100,7 @@ const ReservationActionButtons = ({ reservation }: { reservation: Reservation })
             </div>
             <div>
               <Label className='text-sm font-medium'>Booking Information</Label>
-              <p className='text-sm text-muted-foreground mt-1'>Booked on: {new Date(reservation.created_at).toLocaleString()}</p>
+              <p className='text-sm text-muted-foreground mt-1'>Booked on: <FormattedDate isoDate={reservation.created_at} /></p>
             </div>
           </div>
         </DialogContent>

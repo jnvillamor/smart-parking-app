@@ -23,6 +23,7 @@ import { getRoleColor, getStatusColor } from '@/lib/helper';
 import { Badge } from '../ui/badge';
 import { Input } from '../ui/input';
 import { activateUser, deactivateUser } from '@/lib/user';
+import FormattedDate from '../DateFormatter';
 
 const UserActionButtons = ({ user }: { user: UserProfile }) => {
   const [isProcessing, setIsProcessing] = React.useState(false);
@@ -90,10 +91,10 @@ const UserActionButtons = ({ user }: { user: UserProfile }) => {
                 <div className='mt-2 space-y-2'>
                   <p className='flex items-center text-sm'>
                     <Calendar className='h-4 w-4 mr-2' />
-                    Joined: {new Date(user.created_at).toLocaleDateString()}
+                    Joined: {<FormattedDate isoDate={user.created_at} />}
                   </p>
-                  <p className='flex items-center text-sm text-muted-foreground'>Last Login: {new Date(user.last_login).toLocaleDateString()}</p>
-                  <p className='flex items-center text-sm text-muted-foreground'>Last Seen: {new Date(user.last_seen).toLocaleDateString()}</p>
+                  <p className='flex items-center text-sm text-muted-foreground'>Last Login: {<FormattedDate isoDate={user.last_login} />}</p>
+                  <p className='flex items-center text-sm text-muted-foreground'>Last Seen: {<FormattedDate isoDate={user.last_seen} />}</p>
                 </div>
               </div>
             </div>

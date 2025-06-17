@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Label } from '../ui/label';
 import { Filter, Search } from 'lucide-react';
 import { Input } from '../ui/input';
@@ -10,6 +10,7 @@ import { Button } from '../ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 const LocationFilters = () => {
+  const pahtname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [name, setName] = React.useState<string>(searchParams.get('name') || "");
@@ -43,11 +44,11 @@ const LocationFilters = () => {
       if(filtersChanged) params.set('page', '1');
 
       // Update the URL with the new search parameters
-      router.push(`/admin/locations?${params.toString()}`);
+      router.push(`${pahtname}?${params.toString()}`);
     }, 250);
 
     return () => clearTimeout(timer);
-  }, [name, status, router, searchParams]);
+  }, [name, status, router, searchParams, pahtname]);
 
   return (
     <Card>
@@ -87,10 +88,7 @@ const LocationFilters = () => {
             <Label>&nbsp;</Label>
             <Button
               variant='outline'
-              onClick={() => {
-                setName('');
-                setStatus('all');
-              }}
+              onClick={() => router.push(`${pahtname}`)}
               className='w-full'>
               <Filter className='h-4 w-4' />
               Clear Filters

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Label } from '../ui/label';
 import { Filter, Search } from 'lucide-react';
 import { Input } from '../ui/input';
@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 const ReservationFilters = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const pathname = usePathname();
   const [searchTerm, setSearchTerm] = React.useState<string>('');
   const [status, setStatus] = React.useState<string>(searchParams.get('status') || 'all');
 
@@ -26,11 +27,11 @@ const ReservationFilters = () => {
 
       newParams.set('status', status);
 
-      router.push(`/admin/reservations?${newParams.toString()}`);
-    }
+      router.push(`${pathname}?${newParams.toString()}`);
+    };
 
     handleSearch();
-  }, [searchTerm, status, router, searchParams]);
+  }, [searchTerm, status, router, searchParams, pathname]);
 
   return (
     <Card>
@@ -40,7 +41,7 @@ const ReservationFilters = () => {
       </CardHeader>
       <CardContent>
         <div className='grid gap-4 md:grid-cols-3'>
-          <div className="space-y-2">
+          <div className='space-y-2'>
             <Label htmlFor='search'>Search</Label>
             <div className='relative'>
               <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4' />
@@ -54,9 +55,13 @@ const ReservationFilters = () => {
               />
             </div>
           </div>
-          <div className="space-y-2">
+          <div className='space-y-2'>
             <Label>Status</Label>
-            <Select value={status} onValueChange={(value) => {setStatus(value)}}>
+            <Select
+              value={status}
+              onValueChange={(value) => {
+                setStatus(value);
+              }}>
               <SelectTrigger className='w-full'>
                 <SelectValue />
               </SelectTrigger>
@@ -74,6 +79,7 @@ const ReservationFilters = () => {
             <Button
               variant='outline'
               onClick={() => {
+                router.push(`${pathname}`);
               }}
               className='w-full'>
               <Filter className='h-4 w-4' />

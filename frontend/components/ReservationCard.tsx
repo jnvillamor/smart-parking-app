@@ -3,6 +3,7 @@ import { getStatusBadge } from '@/lib/helper';
 import { MapPin } from 'lucide-react';
 import { Reservation } from '@/lib/types';
 import ReservationCardActionButtons from './ReservationCardActionButtons';
+import FormattedDate from './DateFormatter';
 
 const ReservationCard = ({ reservation }: { reservation: Reservation }) => {
   return (
@@ -27,11 +28,11 @@ const ReservationCard = ({ reservation }: { reservation: Reservation }) => {
         </div>
         <div>
           <p className='text-muted-foreground'>Start</p>
-          <p className='font-medium'>{new Date(reservation.start_time).toLocaleString()}</p>
+          <p className='font-medium'><FormattedDate isoDate={reservation.start_time} /></p>
         </div>
         <div>
           <p className='text-muted-foreground'>End</p>
-          <p className='font-medium'>{new Date(reservation.end_time).toLocaleString()}</p>
+          <p className='font-medium'><FormattedDate isoDate={reservation.end_time} /></p>
         </div>
       </div>
       <ReservationCardActionButtons reservation={reservation} />

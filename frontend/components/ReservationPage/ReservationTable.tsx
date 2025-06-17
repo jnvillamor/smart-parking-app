@@ -8,6 +8,7 @@ import ReservationActionButtons from './ReservationActionButtons';
 import SortingButton from '../SortingButton';
 import { Calendar } from 'lucide-react';
 import { getStatusBadge } from '@/lib/helper';
+import FormattedDate from '../DateFormatter';
 
 const ReservationTable = async ({ params }: { params: SearchParams }) => {
   const reservations = await getReservations(params);
@@ -63,8 +64,8 @@ const ReservationTable = async ({ params }: { params: SearchParams }) => {
                 </TableCell>
                 <TableCell className='p-4 align-middle'>
                   <div className='text-sm'>
-                    <p>{new Date(reservation.start_time).toLocaleString()}</p>
-                    <p className='text-muted-foreground'>to {new Date(reservation.end_time).toLocaleString()}</p>
+                    <p><FormattedDate isoDate={reservation.start_time} /></p>
+                    <p className='text-muted-foreground'>to <FormattedDate isoDate={reservation.end_time} /></p>
                   </div>
                 </TableCell>
                 <TableCell className='p-4 align-middle'>{reservation.duration_hours.toFixed(2)}h</TableCell>
