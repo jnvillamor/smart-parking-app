@@ -10,7 +10,7 @@ def is_parking_full(now: datetime, parking_lot: ParkingLot) -> bool:
   param parking_lot: ParkingLot object to check.
   """
   active_reservations = [
-    res for res in parking_lot.reservations if res.start_time <= now <= res.end_time
+    res for res in parking_lot.reservations if res.end_time > now and res.is_cancelled is False
   ]
   
   return len(active_reservations) >= parking_lot.total_slots
