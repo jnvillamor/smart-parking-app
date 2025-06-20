@@ -4,4 +4,4 @@ from .alembic_runner import run_migrations
 from .parking import is_parking_full
 from .reservation import is_valid_request, sort_reservations, sort_by_status
 from .time_helper import get_today_utc_range, get_month_utc_range, to_utc, get_local_timezone, get_current_utc_time
-from .notification_service import check_reservation_expirations
+from .notification_service import scheduler, send_notification_for_reservation

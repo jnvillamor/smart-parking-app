@@ -1,13 +1,12 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select, String, or_, and_
 from fastapi import APIRouter, Depends, HTTPException, status
-from datetime import datetime, timezone
 from typing import Literal
 
 from app.models import Reservation, User, ParkingLot, Notification
 from app.schema import ReservationCreate, ReservationResponse, PaginatedReservations, ReservationSummary
 from app.core.database import get_db
-from app.utils import get_current_user, is_valid_request, get_admin_user, sort_reservations, get_current_utc_time, sort_by_status
+from app.utils import get_current_user, is_valid_request, get_admin_user, sort_reservations, get_current_utc_time, sort_by_status, send_notification_for_reservation, scheduler
 
 router = APIRouter(
   prefix="/reservations",
@@ -42,6 +41,9 @@ async def create_reservation(
     db.add(new_reservation)
     db.commit()
     db.refresh(new_reservation)
+
+    # Create a notification for the user
+    send_notification_for_reservation(new_reservation, db)
 
     # Return the created reservation
     return ReservationResponse.model_validate(new_reservation).model_dump()
@@ -210,6 +212,12 @@ async def cancel_reservation(
 
     # Update the reservation status
     reservation.is_cancelled = True
+
+    # remove the scheduled notifications for this reservation
+    for suffix in ["start_30", "start_exact", "end_30", "end_exact"]:
+      job_id = f"notify_{suffix}_{reservation.id}"
+      if scheduler.get_job(job_id):
+        scheduler.remove_job(job_id)
 
     # Create a notification for the user
     notif = Notification(
